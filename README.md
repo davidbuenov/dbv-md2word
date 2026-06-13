@@ -41,7 +41,9 @@ La herramienta incluye una **interfaz web local interactiva** que permite config
 <a name="installation"></a>
 ## ⚙️ Instalación
 
-El proceso de instalación de dependencias está automatizado mediante los scripts de arranque. No obstante, si deseas realizar una instalación manual en tu entorno local:
+El proceso de instalación de dependencias está completamente automatizado y se realiza mediante el script de arranque inteligente (`start.cmd` o `start.sh`). La primera vez que lo ejecutes, creará el entorno virtual e instalará todo de forma automática. En las siguientes ejecuciones, se saltará este paso para arrancar la aplicación de forma instantánea.
+
+No obstante, si deseas realizar una instalación manual en tu entorno local:
 
 ```bash
 # 1. Crear el entorno virtual
