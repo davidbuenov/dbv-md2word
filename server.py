@@ -23,7 +23,7 @@ from starlette.background import BackgroundTasks
 import uvicorn
 
 # Importamos nuestro módulo conversor refactorizado
-from convert_md_to_docx import parse_markdown, create_docx
+from convert_md_to_docx import parse_markdown, create_docx, load_default_config
 
 app = FastAPI(title="dbv-md2word Local Server")
 
@@ -50,13 +50,18 @@ async def index():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"No se pudo cargar index.html: {str(e)}")
 
+@app.get("/api/config")
+async def get_config():
+    """Devuelve la configuración por defecto de config.json."""
+    return load_default_config()
+
 @app.post("/api/convert")
 async def convert_api(
     background_tasks: BackgroundTasks,
     markdown_files: List[UploadFile] = File(...),
     image_files: List[UploadFile] = File(default=[]),
     heading_font: str = Form("Aptos Display"),
-    body_font: str = Form("Calibri"),
+    body_font: str = Form("Aptos"),
     code_font: str = Form("Consolas"),
     primary_color: str = Form("#1F4E79"),
     toc_enabled: bool = Form(True),

@@ -150,6 +150,32 @@ def configure_document_styles(doc, config):
     shading = parse_xml(r'<w:shd {} w:fill="F0F0F0"/>'.format(nsdecls('w')))
     rPr.append(shading)
 
+def add_field(paragraph, field_code, placeholder_text, font_name, is_bold=False, color_rgb=None):
+    """Agrega un campo de Word estructurado correctamente (begin -> instrText -> separate -> result -> end)."""
+    # 1. Run de inicio del campo
+    run_begin = paragraph.add_run()
+    run_begin._r.append(parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="begin"/>'))
+    
+    # 2. Run con el código del campo
+    run_instr = paragraph.add_run()
+    run_instr._r.append(parse_xml(f'<w:instrText {nsdecls("w")} xml:space="preserve">{field_code}</w:instrText>'))
+    
+    # 3. Run de separación
+    run_sep = paragraph.add_run()
+    run_sep._r.append(parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="separate"/>'))
+    
+    # 4. Run con el resultado/placeholder (va entre separate y end)
+    run_val = paragraph.add_run(placeholder_text)
+    run_val.font.name = font_name
+    if is_bold:
+        run_val.bold = True
+    if color_rgb:
+        run_val.font.color.rgb = color_rgb
+        
+    # 5. Run de fin de campo
+    run_end = paragraph.add_run()
+    run_end._r.append(parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="end"/>'))
+
 def add_toc(doc, config):
     """Inserta una Tabla de Contenidos nativa de Word."""
     p = doc.add_paragraph()
@@ -170,29 +196,22 @@ def add_toc(doc, config):
     p_desc = doc.add_paragraph()
     p_desc.paragraph_format.space_after = Pt(4)
     run_desc = p_desc.add_run("[Haz clic derecho sobre el bloque de abajo y selecciona 'Actualizar campos' para actualizar el índice]")
-    run_desc.font.name = config.get('body_font', 'Calibri')
+    run_desc.font.name = config.get('body_font', 'Aptos')
     run_desc.font.italic = True
     run_desc.font.size = Pt(9.5)
     run_desc.font.color.rgb = RGBColor(120, 120, 120)
     
     p_toc = doc.add_paragraph()
     p_toc.paragraph_format.space_after = Pt(12)
-    run_toc = p_toc.add_run()
     
-    fldChar1 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="begin"/>')
-    instrText = parse_xml(f'<w:instrText {nsdecls("w")} xml:space="preserve"> TOC \\o "1-3" \\h \\z \\u </w:instrText>')
-    fldChar2 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="separate"/>')
-    fldChar3 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="end"/>')
-    
-    run_toc._r.append(fldChar1)
-    run_toc._r.append(instrText)
-    run_toc._r.append(fldChar2)
-    
-    run_placeholder = p_toc.add_run("--- Índice Generado por Word ---")
-    run_placeholder.font.name = config.get('body_font', 'Calibri')
-    run_placeholder.font.color.rgb = RGBColor(128, 128, 128)
-    
-    run_toc._r.append(fldChar3)
+    body_font = config.get('body_font', 'Aptos')
+    add_field(
+        p_toc,
+        field_code=' TOC \\o "1-3" \\h \\z \\u ',
+        placeholder_text="--- Índice Generado por Word ---",
+        font_name=body_font,
+        color_rgb=RGBColor(128, 128, 128)
+    )
 
 def add_figure_caption(doc, text, bookmark_name, state, config):
     """Añade un pie de foto de figura con numeración automática SEQ y marcador para referencias."""
@@ -202,28 +221,18 @@ def add_figure_caption(doc, text, bookmark_name, state, config):
     p.paragraph_format.keep_with_next = True
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    body_font = config.get('body_font', 'Calibri')
+    body_font = config.get('body_font', 'Aptos')
     run_prefix = p.add_run("Fig. ")
     run_prefix.font.name = body_font
     
     # Campo SEQ
-    run_seq = p.add_run()
-    run_seq.font.name = body_font
-    fldChar1 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="begin"/>')
-    instrText = parse_xml(f'<w:instrText {nsdecls("w")} xml:space="preserve"> SEQ Figure \\* ARABIC </w:instrText>')
-    fldChar2 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="separate"/>')
-    fldChar3 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="end"/>')
-    
-    run_seq._r.append(fldChar1)
-    run_seq._r.append(instrText)
-    run_seq._r.append(fldChar2)
-    
-    # Número temporal
-    run_num = p.add_run("0")
-    run_num.bold = True
-    run_num.font.name = body_font
-    
-    run_seq._r.append(fldChar3)
+    add_field(
+        p,
+        field_code=' SEQ Figure \\* ARABIC ',
+        placeholder_text="0",
+        font_name=body_font,
+        is_bold=True
+    )
     
     if text:
         run_text = p.add_run(f": {text}")
@@ -243,27 +252,18 @@ def add_table_caption(doc, text, bookmark_name, state, config):
     p.paragraph_format.space_after = Pt(4)
     p.paragraph_format.keep_with_next = True
     
-    body_font = config.get('body_font', 'Calibri')
+    body_font = config.get('body_font', 'Aptos')
     run_prefix = p.add_run("Tabla ")
     run_prefix.font.name = body_font
     
     # Campo SEQ
-    run_seq = p.add_run()
-    run_seq.font.name = body_font
-    fldChar1 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="begin"/>')
-    instrText = parse_xml(f'<w:instrText {nsdecls("w")} xml:space="preserve"> SEQ Table \\* ARABIC </w:instrText>')
-    fldChar2 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="separate"/>')
-    fldChar3 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="end"/>')
-    
-    run_seq._r.append(fldChar1)
-    run_seq._r.append(instrText)
-    run_seq._r.append(fldChar2)
-    
-    run_num = p.add_run("0")
-    run_num.bold = True
-    run_num.font.name = body_font
-    
-    run_seq._r.append(fldChar3)
+    add_field(
+        p,
+        field_code=' SEQ Table \\* ARABIC ',
+        placeholder_text="0",
+        font_name=body_font,
+        is_bold=True
+    )
     
     if text:
         run_text = p.add_run(f": {text}")
@@ -276,28 +276,20 @@ def add_table_caption(doc, text, bookmark_name, state, config):
     p._p.insert(0, start)
     p._p.append(end)
 
-def add_cross_reference(paragraph, bookmark_name, prefix_text, body_font='Calibri'):
+def add_cross_reference(paragraph, bookmark_name, prefix_text, body_font='Aptos'):
     """Agrega un campo de referencia cruzada REF dinámico en el párrafo."""
     r_prefix = paragraph.add_run(prefix_text)
     r_prefix.font.name = body_font
     
-    run_ref = paragraph.add_run()
-    fldChar1 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="begin"/>')
-    instrText = parse_xml(f'<w:instrText {nsdecls("w")} xml:space="preserve"> REF {bookmark_name} \\h </w:instrText>')
-    fldChar2 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="separate"/>')
-    fldChar3 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="end"/>')
-    
-    run_ref._r.append(fldChar1)
-    run_ref._r.append(instrText)
-    run_ref._r.append(fldChar2)
-    
-    run_placeholder = paragraph.add_run("?")
-    run_placeholder.bold = True
-    run_placeholder.font.name = body_font
-    
-    run_ref._r.append(fldChar3)
+    add_field(
+        paragraph,
+        field_code=f' REF {bookmark_name} \\h ',
+        placeholder_text="?",
+        font_name=body_font,
+        is_bold=True
+    )
 
-def add_hyperlink(paragraph, text, url, body_font='Calibri'):
+def add_hyperlink(paragraph, text, url, body_font='Aptos'):
     """Añade un hipervínculo en color azul y subrayado con la fuente del cuerpo."""
     part = paragraph.part
     r_id = part.relate_to(url, RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
@@ -565,20 +557,27 @@ def create_docx(blocks, output_path, config=None, base_dir=None):
     shift_headings = config.get('shift_headings', False)
     
     heading_font = config.get('heading_font', 'Aptos Display')
-    body_font = config.get('body_font', 'Calibri')
+    body_font = config.get('body_font', 'Aptos')
     
     primary_color_hex = config.get('primary_color', '1F4E79')
     if primary_color_hex.startswith('#'):
         primary_color_hex = primary_color_hex[1:]
     primary_rgb = RGBColor.from_string(primary_color_hex)
-
-    # Si la Tabla de Contenidos está habilitada y no empezamos con título, se agrega al inicio
-    # (Para no duplicar el TOC, si shift_headings es true, se agregará tras el primer H1 (Title))
-    if toc_enabled and len(blocks) > 0 and blocks[0]['type'] != 'heading' and not shift_headings:
-        add_toc(doc, config)
-        toc_added = True
         
     for block in blocks:
+        # Si la Tabla de Contenidos está habilitada y no ha sido agregada,
+        # la agregamos al inicio a menos que este bloque sea el título principal (nivel 1).
+        if toc_enabled and not toc_added:
+            is_main_title = False
+            if block['type'] == 'heading':
+                if shift_headings and block['level'] == 1:
+                    is_main_title = True
+                elif not shift_headings and block['level'] == 1:
+                    is_main_title = True
+            
+            if not is_main_title:
+                add_toc(doc, config)
+                toc_added = True
         if block['type'] == 'heading':
             level = block['level']
             text = block['text']

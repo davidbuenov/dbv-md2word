@@ -1,28 +1,24 @@
-# 📝 Registro de Tareas / Task Register
+# Tareas de Implementación — dbv-md2word
 
-## 🏗 In Progress / En Curso
-
-*(Ninguna tarea en curso)*
-
-## ⏳ Pending / Pendientes (Backlog)
-
-*(Ninguna tarea pendiente)*
-
-## ✅ Completed / Completadas
-
-- [x] **Task 1: Bootstrap y Configuración del Entorno**
-- [x] **Task 2: Refactorización del Núcleo Conversor (`convert_md_to_docx.py`)**
-- [x] **Task 3: Desarrollo de la Interfaz Web Local**
-- [x] **Task 4: Implementación del Servidor FastAPI (`server.py`)**
-- [x] **Task 5: Scripts de Automatización**
-- [x] **Task 6: Suite de Pruebas Unitarias**
-- [x] **Task 7: Entrega de Versión (`/ship`)**
+- [x] **Task 1: Refactorizar `convert_md_to_docx.py`**
+    - [x] Crear la función `add_field` para formatear correctamente la secuencia de elementos XML de los campos de Word.
+    - [x] Refactorizar `add_toc`, `add_figure_caption`, `add_table_caption` y `add_cross_reference` para que utilicen `add_field`.
+    - [x] Mejorar la lógica de ubicación del TOC automático.
+- [x] **Task 2: Modificar `server.py`**
+    - [x] Añadir el endpoint `GET /api/config`.
+    - [x] Actualizar el parámetro `body_font` por defecto a "Aptos".
+- [x] **Task 3: Modificar `templates/index.html`**
+    - [x] Establecer el valor por defecto del selector `body-font` a "Aptos".
+- [x] **Task 4: Modificar `static/app.js`**
+    - [x] Implementar la función `loadConfig()` para poblar la UI al iniciar.
+- [x] **Task 5: Verificar cambios**
+    - [x] Ejecutar pruebas unitarias.
+    - [x] Levantar el servidor y realizar verificación manual de la interfaz y conversión.
+- [x] **Task 6: Configuración del Entorno en IDE**
+    - [x] Configurar rutas relativas y exclusiones en `.vscode/settings.json` para corregir el error de detección de python.exe de Antigravity.
 
 ---
 
-## 🔄 Context Snapshot / Snapshot de Contexto
-
-> **Last update / Última actualización:** 2026-06-13
-> **Exact point / Punto exacto:** Versión 0.1.1 liberada con éxito en Git. Todas las tareas de refactorización del parser de Markdown, estilos dinámicos, interfaz visual local (FastAPI) y scripts de arranque multiplataforma completadas. Pruebas unitarias al 100% exitosas (6/6).
-> **Pending / Pendiente:** Ninguno.
-> **Next step / Próximo paso:** El usuario puede ejecutar `start.cmd` para iniciar el servidor FastAPI local e interactuar con la interfaz web de conversión de forma visual.
+## 📸 Snapshot de Contexto (Próximo Paso)
+- **Versión Liberada:** `v0.2.0` (Cambios confirmados y versión etiquetada).
+- **Siguiente Objetivo:** Continuar probando conversiones de documentos markdown más complejos para validar el comportamiento tipográfico de "Aptos" y "Aptos Display". Añadir soporte para nuevas personalizaciones estéticas en la barra lateral (como estilos de tablas o bordes de párrafos).

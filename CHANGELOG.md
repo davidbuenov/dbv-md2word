@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.0] — 2026-06-13
+
+### Added
+- **Configuración Global (`config.json`):** Archivo de configuración central en la raíz del proyecto para definir fuentes por defecto (`body_font`, `heading_font`, `code_font`), color primario y estados por defecto de los selectores.
+- **Endpoint `/api/config`:** Nueva ruta en `server.py` que sirve los valores cargados desde `config.json`.
+- **Sincronización Web:** Script `static/app.js` modificado para obtener y aplicar la configuración de `config.json` en los controles de la interfaz web en tiempo de ejecución.
+- **Exclusión de Entorno Virtual en IDE:** Añadidas directivas en `.vscode/settings.json` para evitar que el IDE indexe la carpeta `venv/` y use rutas relativas para el intérprete.
+
+### Changed
+- **Fuentes por Defecto:** Cambio de la fuente normal predeterminada de `"Calibri"` a `"Aptos"` en el backend (`convert_md_to_docx.py`, `server.py`) y en el selector HTML (`templates/index.html`).
+
+### Fixed
+- **Estructura XML de Campos de Word:** Corrección del orden XML en campos dinámicos (TOC, SEQ, REF) mediante la nueva función `add_field` (`begin` -> `instrText` -> `separate` -> `result` -> `end`), resolviendo fallos al actualizar índices en Microsoft Word.
+- **Ubicación Inteligente del TOC:** Inyección de la Tabla de Contenidos al inicio del documento si este empieza con párrafos o encabezados distintos a H1.
+
+---
+
 ## [0.1.1] — 2026-06-13
 
 ### Added

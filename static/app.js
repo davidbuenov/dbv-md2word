@@ -347,4 +347,62 @@ document.addEventListener('DOMContentLoaded', () => {
         resultPanel.classList.add('hidden');
         updateFilesListUI();
     });
+
+    // Carga de configuración inicial desde el servidor
+    async function loadConfig() {
+        try {
+            const response = await fetch('/api/config');
+            if (response.ok) {
+                const config = await response.json();
+                
+                if (config.heading_font) {
+                    const headingFontSelect = document.getElementById('heading-font');
+                    if (headingFontSelect) headingFontSelect.value = config.heading_font;
+                }
+                
+                if (config.body_font) {
+                    const bodyFontSelect = document.getElementById('body-font');
+                    if (bodyFontSelect) bodyFontSelect.value = config.body_font;
+                }
+                
+                if (config.code_font) {
+                    const codeFontSelect = document.getElementById('code-font');
+                    if (codeFontSelect) codeFontSelect.value = config.code_font;
+                }
+                
+                if (config.primary_color) {
+                    primaryColorHex.value = config.primary_color.toUpperCase();
+                    primaryColorPicker.value = config.primary_color;
+                    
+                    // Sincronizar presets
+                    colorPresets.forEach(preset => {
+                        if (preset.getAttribute('data-color').toLowerCase() === config.primary_color.toLowerCase()) {
+                            preset.classList.add('active');
+                        } else {
+                            preset.classList.remove('active');
+                        }
+                    });
+                }
+                
+                if (config.hasOwnProperty('toc_enabled')) {
+                    const tocCheckbox = document.getElementById('toc-enabled');
+                    if (tocCheckbox) tocCheckbox.checked = config.toc_enabled;
+                }
+                
+                if (config.hasOwnProperty('numbering_enabled')) {
+                    const numberingCheckbox = document.getElementById('numbering-enabled');
+                    if (numberingCheckbox) numberingCheckbox.checked = config.numbering_enabled;
+                }
+                
+                if (config.hasOwnProperty('shift_headings')) {
+                    const shiftCheckbox = document.getElementById('shift-headings');
+                    if (shiftCheckbox) shiftCheckbox.checked = config.shift_headings;
+                }
+            }
+        } catch (error) {
+            console.error('Error al cargar la configuración por defecto:', error);
+        }
+    }
+
+    loadConfig();
 });
