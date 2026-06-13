@@ -1,3 +1,10 @@
+# =============================================================================
+# dbv-md2word — Conversor personalizable de Markdown a Word (.docx) con interfaz visual local
+# Copyright (c) 2026 David Bueno Vallejo · https://github.com/davidbuenov
+# Licensed under the MIT License. See LICENSE for details.
+# Built with dbv-specs-ops · https://github.com/davidbuenov/dbv-specs-ops
+# =============================================================================
+
 import re
 import os
 import sys
@@ -9,27 +16,311 @@ from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 from docx.opc.constants import RELATIONSHIP_TYPE
 
-def add_hyperlink(paragraph, text, url):
+class ConversionState:
+    """Clase para mantener el estado de la conversión, como los contadores de marcadores."""
+    def __init__(self):
+        self.bookmark_counter = 0
+
+    def get_next_bookmark_id(self):
+        self.bookmark_counter += 1
+        return self.bookmark_counter
+
+def get_style_safely(doc, english_name, spanish_name):
+    """Busca un estilo en el documento de forma segura por su nombre en inglés o español."""
+    for name in [english_name, spanish_name]:
+        if name in doc.styles:
+            return doc.styles[name]
+    # Intenta buscar por ID (eliminando espacios)
+    style_id = english_name.replace(" ", "")
+    for s in doc.styles:
+        if s.style_id == style_id:
+            return s
+    return None
+
+def get_or_create_paragraph_style(doc, name, base_style_name='Normal'):
+    """Retorna un estilo de párrafo o lo crea si no existe y lo añade a la galería."""
+    try:
+        return doc.styles[name]
+    except KeyError:
+        from docx.enum.style import WD_STYLE_TYPE
+        style = doc.styles.add_style(name, WD_STYLE_TYPE.PARAGRAPH)
+        style.base_style = doc.styles[base_style_name]
+        style.quick_style = True
+        return style
+
+def get_or_create_character_style(doc, name, base_style_name='Default Paragraph Font'):
+    """Retorna un estilo de carácter o lo crea si no existe y lo añade a la galería."""
+    try:
+        return doc.styles[name]
+    except KeyError:
+        from docx.enum.style import WD_STYLE_TYPE
+        style = doc.styles.add_style(name, WD_STYLE_TYPE.CHARACTER)
+        try:
+            style.base_style = doc.styles[base_style_name]
+        except KeyError:
+            pass
+        style.quick_style = True
+        return style
+
+def sanitize_bookmark_name(text):
+    """Sanitiza el texto para crear un nombre de marcador válido en Word."""
+    sanitized = re.sub(r'[^a-zA-Z0-9_]', '', text)
+    if not sanitized:
+        sanitized = "bookmark"
+    if sanitized[0].isdigit():
+        sanitized = "_" + sanitized
+    return sanitized[:40]
+
+def configure_document_styles(doc, config):
+    """Configura las fuentes y colores de los estilos del documento según la configuración del usuario."""
+    # Estilo Normal (Cuerpo del texto)
+    style_normal = doc.styles['Normal']
+    font_normal = style_normal.font
+    font_normal.name = config.get('body_font', 'Calibri')
+    font_normal.size = Pt(11)
+    
+    primary_color_hex = config.get('primary_color', '1F4E79')
+    if primary_color_hex.startswith('#'):
+        primary_color_hex = primary_color_hex[1:]
+    primary_rgb = RGBColor.from_string(primary_color_hex)
+    
+    # Configuración de estilo "Title / Título" para título principal
+    style_title = get_style_safely(doc, 'Title', 'Título')
+    if style_title:
+        font_title = style_title.font
+        font_title.name = config.get('heading_font', 'Aptos Display')
+        font_title.size = Pt(24)
+        font_title.bold = True
+        font_title.color.rgb = primary_rgb
+        style_title.quick_style = True
+
+    # Configuración de Encabezados Nativos
+    heading_configs = [
+        (1, 'Heading 1', 'Título 1', Pt(20), True),
+        (2, 'Heading 2', 'Título 2', Pt(15), True),
+        (3, 'Heading 3', 'Título 3', Pt(12.5), True),
+        (4, 'Heading 4', 'Título 4', Pt(11), True),
+    ]
+    
+    for lvl, eng_name, esp_name, size, bold in heading_configs:
+        style = get_style_safely(doc, eng_name, esp_name)
+        if style:
+            font = style.font
+            font.name = config.get('heading_font', 'Aptos Display')
+            font.size = size
+            font.bold = bold
+            font.color.rgb = primary_rgb
+            style.quick_style = True
+            
+            # Márgenes de párrafo para encabezados
+            style.paragraph_format.keep_with_next = True
+            if lvl == 1:
+                style.paragraph_format.space_before = Pt(20)
+                style.paragraph_format.space_after = Pt(8)
+            elif lvl == 2:
+                style.paragraph_format.space_before = Pt(14)
+                style.paragraph_format.space_after = Pt(6)
+            else:
+                style.paragraph_format.space_before = Pt(10)
+                style.paragraph_format.space_after = Pt(4)
+                
+    # Estilo de bloque de código ('codigo' - párrafo)
+    style_code = get_or_create_paragraph_style(doc, 'codigo')
+    font_code = style_code.font
+    font_code.name = config.get('code_font', 'Consolas')
+    font_code.size = Pt(9.5)
+    font_code.color.rgb = RGBColor(60, 60, 60)
+    style_code.paragraph_format.space_after = Pt(0)
+    style_code.paragraph_format.line_spacing = 1.0
+    style_code.quick_style = True
+    
+    # Estilo de código en línea ('codigo_car' - carácter)
+    style_code_car = get_or_create_character_style(doc, 'codigo_car')
+    font_code_car = style_code_car.font
+    font_code_car.name = config.get('code_font', 'Consolas')
+    font_code_car.size = Pt(9.5)
+    style_code_car.quick_style = True
+    
+    # XML para sombreado de fondo gris en inline code
+    rPr = style_code_car.element.get_or_add_rPr()
+    # Limpiamos sombreados previos si existen
+    for child in list(rPr):
+        if child.tag.endswith('shd'):
+            rPr.remove(child)
+    shading = parse_xml(r'<w:shd {} w:fill="F0F0F0"/>'.format(nsdecls('w')))
+    rPr.append(shading)
+
+def add_toc(doc, config):
+    """Inserta una Tabla de Contenidos nativa de Word."""
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(12)
+    p.paragraph_format.space_after = Pt(12)
+    
+    primary_color_hex = config.get('primary_color', '1F4E79')
+    if primary_color_hex.startswith('#'):
+        primary_color_hex = primary_color_hex[1:]
+    primary_rgb = RGBColor.from_string(primary_color_hex)
+    
+    run_title = p.add_run("Índice de Contenidos")
+    run_title.bold = True
+    run_title.font.name = config.get('heading_font', 'Aptos Display')
+    run_title.font.size = Pt(14)
+    run_title.font.color.rgb = primary_rgb
+    
+    p_desc = doc.add_paragraph()
+    p_desc.paragraph_format.space_after = Pt(4)
+    run_desc = p_desc.add_run("[Haz clic derecho sobre el bloque de abajo y selecciona 'Actualizar campos' para actualizar el índice]")
+    run_desc.font.name = config.get('body_font', 'Calibri')
+    run_desc.font.italic = True
+    run_desc.font.size = Pt(9.5)
+    run_desc.font.color.rgb = RGBColor(120, 120, 120)
+    
+    p_toc = doc.add_paragraph()
+    p_toc.paragraph_format.space_after = Pt(12)
+    run_toc = p_toc.add_run()
+    
+    fldChar1 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="begin"/>')
+    instrText = parse_xml(f'<w:instrText {nsdecls("w")} xml:space="preserve"> TOC \\o "1-3" \\h \\z \\u </w:instrText>')
+    fldChar2 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="separate"/>')
+    fldChar3 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="end"/>')
+    
+    run_toc._r.append(fldChar1)
+    run_toc._r.append(instrText)
+    run_toc._r.append(fldChar2)
+    
+    run_placeholder = p_toc.add_run("--- Índice Generado por Word ---")
+    run_placeholder.font.name = config.get('body_font', 'Calibri')
+    run_placeholder.font.color.rgb = RGBColor(128, 128, 128)
+    
+    run_toc._r.append(fldChar3)
+
+def add_figure_caption(doc, text, bookmark_name, state, config):
+    """Añade un pie de foto de figura con numeración automática SEQ y marcador para referencias."""
+    p = doc.add_paragraph(style='Caption')
+    p.paragraph_format.space_before = Pt(4)
+    p.paragraph_format.space_after = Pt(16)
+    p.paragraph_format.keep_with_next = True
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    
+    body_font = config.get('body_font', 'Calibri')
+    run_prefix = p.add_run("Fig. ")
+    run_prefix.font.name = body_font
+    
+    # Campo SEQ
+    run_seq = p.add_run()
+    run_seq.font.name = body_font
+    fldChar1 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="begin"/>')
+    instrText = parse_xml(f'<w:instrText {nsdecls("w")} xml:space="preserve"> SEQ Figure \\* ARABIC </w:instrText>')
+    fldChar2 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="separate"/>')
+    fldChar3 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="end"/>')
+    
+    run_seq._r.append(fldChar1)
+    run_seq._r.append(instrText)
+    run_seq._r.append(fldChar2)
+    
+    # Número temporal
+    run_num = p.add_run("0")
+    run_num.bold = True
+    run_num.font.name = body_font
+    
+    run_seq._r.append(fldChar3)
+    
+    if text:
+        run_text = p.add_run(f": {text}")
+        run_text.font.name = body_font
+        
+    # Inyectar Marcador (Bookmark)
+    bookmark_id = state.get_next_bookmark_id()
+    start = parse_xml(f'<w:bookmarkStart {nsdecls("w")} w:id="{bookmark_id}" w:name="{bookmark_name}"/>')
+    end = parse_xml(f'<w:bookmarkEnd {nsdecls("w")} w:id="{bookmark_id}"/>')
+    p._p.insert(0, start)
+    p._p.append(end)
+
+def add_table_caption(doc, text, bookmark_name, state, config):
+    """Añade un título de tabla superior con numeración automática SEQ y marcador."""
+    p = doc.add_paragraph(style='Caption')
+    p.paragraph_format.space_before = Pt(16)
+    p.paragraph_format.space_after = Pt(4)
+    p.paragraph_format.keep_with_next = True
+    
+    body_font = config.get('body_font', 'Calibri')
+    run_prefix = p.add_run("Tabla ")
+    run_prefix.font.name = body_font
+    
+    # Campo SEQ
+    run_seq = p.add_run()
+    run_seq.font.name = body_font
+    fldChar1 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="begin"/>')
+    instrText = parse_xml(f'<w:instrText {nsdecls("w")} xml:space="preserve"> SEQ Table \\* ARABIC </w:instrText>')
+    fldChar2 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="separate"/>')
+    fldChar3 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="end"/>')
+    
+    run_seq._r.append(fldChar1)
+    run_seq._r.append(instrText)
+    run_seq._r.append(fldChar2)
+    
+    run_num = p.add_run("0")
+    run_num.bold = True
+    run_num.font.name = body_font
+    
+    run_seq._r.append(fldChar3)
+    
+    if text:
+        run_text = p.add_run(f": {text}")
+        run_text.font.name = body_font
+        
+    # Inyectar Marcador (Bookmark)
+    bookmark_id = state.get_next_bookmark_id()
+    start = parse_xml(f'<w:bookmarkStart {nsdecls("w")} w:id="{bookmark_id}" w:name="{bookmark_name}"/>')
+    end = parse_xml(f'<w:bookmarkEnd {nsdecls("w")} w:id="{bookmark_id}"/>')
+    p._p.insert(0, start)
+    p._p.append(end)
+
+def add_cross_reference(paragraph, bookmark_name, prefix_text, body_font='Calibri'):
+    """Agrega un campo de referencia cruzada REF dinámico en el párrafo."""
+    r_prefix = paragraph.add_run(prefix_text)
+    r_prefix.font.name = body_font
+    
+    run_ref = paragraph.add_run()
+    fldChar1 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="begin"/>')
+    instrText = parse_xml(f'<w:instrText {nsdecls("w")} xml:space="preserve"> REF {bookmark_name} \\h </w:instrText>')
+    fldChar2 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="separate"/>')
+    fldChar3 = parse_xml(f'<w:fldChar {nsdecls("w")} w:fldCharType="end"/>')
+    
+    run_ref._r.append(fldChar1)
+    run_ref._r.append(instrText)
+    run_ref._r.append(fldChar2)
+    
+    run_placeholder = paragraph.add_run("?")
+    run_placeholder.bold = True
+    run_placeholder.font.name = body_font
+    
+    run_ref._r.append(fldChar3)
+
+def add_hyperlink(paragraph, text, url, body_font='Calibri'):
+    """Añade un hipervínculo en color azul y subrayado con la fuente del cuerpo."""
     part = paragraph.part
     r_id = part.relate_to(url, RELATIONSHIP_TYPE.HYPERLINK, is_external=True)
 
-    # Create the w:hyperlink node
     hyperlink = OxmlElement('w:hyperlink')
     hyperlink.set(qn('r:id'), r_id)
 
-    # Create a w:r node
     new_run = OxmlElement('w:r')
     rPr = OxmlElement('w:rPr')
 
-    # Add color (Blue)
     c = OxmlElement('w:color')
     c.set(qn('w:val'), '0563C1')
     rPr.append(c)
 
-    # Add underline
     u = OxmlElement('w:u')
     u.set(qn('w:val'), 'single')
     rPr.append(u)
+
+    # Inyectamos fuente para hipervínculo
+    rFonts = OxmlElement('w:rFonts')
+    rFonts.set(qn('w:ascii'), body_font)
+    rFonts.set(qn('w:hAnsi'), body_font)
+    rPr.append(rFonts)
 
     new_run.append(rPr)
 
@@ -41,39 +332,64 @@ def add_hyperlink(paragraph, text, url):
     paragraph._p.append(hyperlink)
     return hyperlink
 
-def add_runs_to_paragraph(p, text):
-    pattern = re.compile(r'(\*\*.*?\*\*|\*.*?\*|`.*?`|\[.*?\]\(.*?\))')
+def add_runs_to_paragraph(p, text, config, state):
+    """Parsea el texto markdown y añade runs con estilos y referencias cruzadas."""
+    # Buscamos negrita, cursiva, código, links e indicaciones de referencias cruzadas
+    pattern = re.compile(r'(\*\*.*?\*\*|\*.*?\*|`.*?`|\[.*?\]\(.*?\)|\[(?:Fig\.|Figura\s+|Tabla\s+|Tabla\.)\s*.*?\])')
     parts = pattern.split(text)
+    
+    body_font = config.get('body_font', 'Calibri')
+    code_font = config.get('code_font', 'Consolas')
     
     for part in parts:
         if not part:
             continue
         if part.startswith('**') and part.endswith('**'):
-            p.add_run(part[2:-2]).bold = True
+            r = p.add_run(part[2:-2])
+            r.bold = True
+            r.font.name = body_font
         elif part.startswith('*') and part.endswith('*'):
-            p.add_run(part[1:-1]).italic = True
+            r = p.add_run(part[1:-1])
+            r.italic = True
+            r.font.name = body_font
         elif part.startswith('`') and part.endswith('`'):
             r = p.add_run(part[1:-1])
-            r.font.name = 'Courier New'
-            r.font.size = Pt(9.5)
-            shading = parse_xml(r'<w:shd {} w:fill="F0F0F0"/>'.format(nsdecls('w')))
-            r._r.get_or_add_rPr().append(shading)
+            r.style = 'codigo_car'
+            r.font.name = code_font
         elif part.startswith('[') and ']' in part and '(' in part and part.endswith(')'):
             link_text_match = re.search(r'\[(.*?)\]', part)
             link_url_match = re.search(r'\((.*?)\)', part)
             if link_text_match and link_url_match:
                 link_text = link_text_match.group(1)
                 link_url = link_url_match.group(1)
-                add_hyperlink(p, link_text, link_url)
+                add_hyperlink(p, link_text, link_url, body_font)
+        elif part.startswith('[') and part.endswith(']'):
+            # Posible referencia cruzada
+            match_ref = re.match(r'^\[(Fig\.|Figura\s+|Tabla\s+|Tabla\.)\s*(.*?)\]$', part, re.IGNORECASE)
+            if match_ref:
+                ref_type = match_ref.group(1).strip().lower()
+                label = match_ref.group(2).strip()
+                if 'fig' in ref_type:
+                    bookmark_name = f"_Ref_Fig_{sanitize_bookmark_name(label)}"
+                    add_cross_reference(p, bookmark_name, "Fig. ", body_font)
+                else:
+                    bookmark_name = f"_Ref_Tabla_{sanitize_bookmark_name(label)}"
+                    add_cross_reference(p, bookmark_name, "Tabla ", body_font)
+            else:
+                r = p.add_run(part)
+                r.font.name = body_font
         else:
-            p.add_run(part)
+            r = p.add_run(part)
+            r.font.name = body_font
 
 def set_cell_background(cell, color_hex):
+    """Establece el fondo de una celda de tabla."""
     tcPr = cell._tc.get_or_add_tcPr()
     shd = parse_xml(f'<w:shd {nsdecls("w")} w:fill="{color_hex}"/>')
     tcPr.append(shd)
 
 def parse_markdown(filepath):
+    """Parsea el archivo Markdown y genera una lista de bloques estructurados."""
     if not os.path.exists(filepath):
         print(f"Error: El archivo {filepath} no existe.")
         sys.exit(1)
@@ -85,11 +401,12 @@ def parse_markdown(filepath):
     current_block = None
     in_code = False
     in_table = False
+    table_caption_pending = None
     
     for line in lines:
         stripped = line.strip()
         
-        # Code block handling
+        # Manejo de bloques de código
         if stripped.startswith('```'):
             if in_code:
                 in_code = False
@@ -107,9 +424,18 @@ def parse_markdown(filepath):
             current_block['lines'].append(line.rstrip('\n'))
             continue
             
-        # Table handling
+        # Detección de subtítulo/caption de tablas ("Tabla: Titulo" o "Table: Titulo")
+        caption_match = re.match(r'^(Table|Tabla):\s*(.*)$', stripped, re.IGNORECASE)
+        if caption_match:
+            if current_block:
+                blocks.append(current_block)
+            table_caption_pending = caption_match.group(2).strip()
+            current_block = None
+            continue
+
+        # Manejo de tablas
         if stripped.startswith('|'):
-            if re.match(r'^\|[\s:-|]+$', stripped):
+            if re.match(r'^\|[\s:\-|]+$', stripped):
                 continue
             row_cells = [cell.strip() for cell in stripped.split('|')[1:-1]]
             if in_table:
@@ -118,22 +444,45 @@ def parse_markdown(filepath):
                 if current_block:
                     blocks.append(current_block)
                 in_table = True
-                current_block = {'type': 'table', 'rows': [row_cells]}
+                current_block = {
+                    'type': 'table',
+                    'rows': [row_cells],
+                    'caption': table_caption_pending
+                }
+                table_caption_pending = None
             continue
         else:
             if in_table:
                 in_table = False
                 blocks.append(current_block)
                 current_block = None
+            elif table_caption_pending:
+                if current_block:
+                    blocks.append(current_block)
+                current_block = {'type': 'paragraph', 'text': f"Tabla: {table_caption_pending}"}
+                blocks.append(current_block)
+                current_block = None
+                table_caption_pending = None
                 
-        # Empty line
+        # Línea vacía
         if not stripped:
             if current_block and current_block['type'] not in ['code', 'table']:
                 blocks.append(current_block)
                 current_block = None
             continue
             
-        # Heading
+        # Detección de imágenes (Figura)
+        img_match = re.match(r'^!\[(.*?)\]\((.*?)\)$', stripped)
+        if img_match:
+            if current_block:
+                blocks.append(current_block)
+            alt = img_match.group(1).strip()
+            src = img_match.group(2).strip()
+            blocks.append({'type': 'image', 'alt': alt, 'src': src})
+            current_block = None
+            continue
+
+        # Encabezados (H1 - H6)
         heading_match = re.match(r'^(#{1,6})\s+(.*)$', stripped)
         if heading_match:
             if current_block:
@@ -144,7 +493,7 @@ def parse_markdown(filepath):
             current_block = None
             continue
             
-        # Bullet list
+        # Listas con viñetas o numeradas
         bullet_match = re.match(r'^([-*]|\d+\.)\s+(.*)$', stripped)
         indent_match = re.match(r'^(\s+)([-*]|\d+\.)\s+(.*)$', line)
         
@@ -171,7 +520,7 @@ def parse_markdown(filepath):
                 current_block = {'type': 'list', 'items': [item]}
             continue
             
-        # Horizontal Rule
+        # Línea horizontal
         if stripped == '---':
             if current_block:
                 blocks.append(current_block)
@@ -179,7 +528,7 @@ def parse_markdown(filepath):
             current_block = None
             continue
             
-        # Paragraph
+        # Párrafos normales
         if current_block and current_block['type'] == 'paragraph':
             current_block['text'] += " " + stripped
         else:
@@ -192,10 +541,15 @@ def parse_markdown(filepath):
         
     return blocks
 
-def create_docx(blocks, output_path):
+def create_docx(blocks, output_path, config=None, base_dir=None):
+    """Genera un archivo .docx a partir de bloques estructurados y una configuración."""
+    if config is None:
+        config = {}
+        
     doc = Document()
+    state = ConversionState()
     
-    # Configure margins
+    # Configurar márgenes estándar (1 pulgada = 2.54 cm)
     sections = doc.sections
     for section in sections:
         section.top_margin = Inches(1)
@@ -203,14 +557,27 @@ def create_docx(blocks, output_path):
         section.left_margin = Inches(1)
         section.right_margin = Inches(1)
         
-    # Configure base font style
-    style = doc.styles['Normal']
-    font = style.font
-    font.name = 'Arial'
-    font.size = Pt(11)
+    # Configurar estilos de fuentes y colores
+    configure_document_styles(doc, config)
     
-    first_heading = True
+    toc_added = False
+    toc_enabled = config.get('toc_enabled', True)
+    shift_headings = config.get('shift_headings', False)
     
+    heading_font = config.get('heading_font', 'Aptos Display')
+    body_font = config.get('body_font', 'Calibri')
+    
+    primary_color_hex = config.get('primary_color', '1F4E79')
+    if primary_color_hex.startswith('#'):
+        primary_color_hex = primary_color_hex[1:]
+    primary_rgb = RGBColor.from_string(primary_color_hex)
+
+    # Si la Tabla de Contenidos está habilitada y no empezamos con título, se agrega al inicio
+    # (Para no duplicar el TOC, si shift_headings es true, se agregará tras el primer H1 (Title))
+    if toc_enabled and len(blocks) > 0 and blocks[0]['type'] != 'heading' and not shift_headings:
+        add_toc(doc, config)
+        toc_added = True
+        
     for block in blocks:
         if block['type'] == 'heading':
             level = block['level']
@@ -218,38 +585,67 @@ def create_docx(blocks, output_path):
             
             p = doc.add_paragraph()
             p.paragraph_format.keep_with_next = True
-            run = p.add_run(text)
-            run.bold = True
             
-            if level == 1:
-                run.font.size = Pt(20)
-                run.font.color.rgb = RGBColor(31, 78, 121) # Dark Blue
-                p.paragraph_format.space_before = Pt(24 if not first_heading else 0)
-                p.paragraph_format.space_after = Pt(12)
-                first_heading = False
-            elif level == 2:
-                run.font.size = Pt(15)
-                run.font.color.rgb = RGBColor(46, 116, 181) # Medium Blue
-                p.paragraph_format.space_before = Pt(18)
-                p.paragraph_format.space_after = Pt(8)
-            elif level == 3:
-                run.font.size = Pt(12)
-                run.font.color.rgb = RGBColor(46, 116, 181)
-                p.paragraph_format.space_before = Pt(12)
-                p.paragraph_format.space_after = Pt(6)
+            # Caso 1: Desplazamiento habilitado y es H1 (se convierte en Título Principal del documento)
+            if level == 1 and shift_headings:
+                p.style = get_style_safely(doc, 'Title', 'Título') or 'Title'
+                run = p.add_run(text)
+                run.font.name = heading_font
+                run.font.size = Pt(24)
+                run.bold = True
+                run.font.color.rgb = primary_rgb
+                
+                # Inyectamos el TOC tras el Título Principal si está habilitado
+                if toc_enabled and not toc_added:
+                    add_toc(doc, config)
+                    toc_added = True
             else:
-                run.font.size = Pt(11)
-                run.font.color.rgb = RGBColor(89, 89, 89)
-                p.paragraph_format.space_before = Pt(8)
-                p.paragraph_format.space_after = Pt(4)
+                # Si está desplazado, restamos 1 al nivel (H2 -> Título 1, etc.)
+                actual_level = level - 1 if shift_headings else level
+                if actual_level <= 0:
+                    actual_level = 1
+                
+                if actual_level == 1:
+                    p.style = get_style_safely(doc, 'Heading 1', 'Título 1') or 'Heading 1'
+                    run = p.add_run(text)
+                    run.font.name = heading_font
+                    run.font.size = Pt(20)
+                    run.bold = True
+                    run.font.color.rgb = primary_rgb
+                    
+                    if toc_enabled and not toc_added:
+                        add_toc(doc, config)
+                        toc_added = True
+                elif actual_level == 2:
+                    p.style = get_style_safely(doc, 'Heading 2', 'Título 2') or 'Heading 2'
+                    run = p.add_run(text)
+                    run.font.name = heading_font
+                    run.font.size = Pt(15)
+                    run.bold = True
+                    run.font.color.rgb = primary_rgb
+                elif actual_level == 3:
+                    p.style = get_style_safely(doc, 'Heading 3', 'Título 3') or 'Heading 3'
+                    run = p.add_run(text)
+                    run.font.name = heading_font
+                    run.font.size = Pt(12.5)
+                    run.bold = True
+                    run.font.color.rgb = primary_rgb
+                else:
+                    p.style = get_style_safely(doc, 'Heading 4', 'Título 4') or 'Heading 4'
+                    run = p.add_run(text)
+                    run.font.name = heading_font
+                    run.font.size = Pt(11)
+                    run.bold = True
+                    run.font.color.rgb = primary_rgb
                 
         elif block['type'] == 'paragraph':
             if not block['text'].strip():
                 continue
             p = doc.add_paragraph()
+            p.style = 'Normal'
             p.paragraph_format.space_after = Pt(8)
             p.paragraph_format.line_spacing = 1.15
-            add_runs_to_paragraph(p, block['text'])
+            add_runs_to_paragraph(p, block['text'], config, state)
             
         elif block['type'] == 'list':
             for item in block['items']:
@@ -262,7 +658,7 @@ def create_docx(blocks, output_path):
                 p = doc.add_paragraph(style=style_name)
                 p.paragraph_format.space_after = Pt(3)
                 p.paragraph_format.line_spacing = 1.15
-                add_runs_to_paragraph(p, item['text'])
+                add_runs_to_paragraph(p, item['text'], config, state)
                 
         elif block['type'] == 'hr':
             p = doc.add_paragraph()
@@ -272,46 +668,98 @@ def create_docx(blocks, output_path):
             p._p.get_or_add_pPr().append(p_border)
             
         elif block['type'] == 'code':
+            # Caja para el bloque de código con tabla 1x1
             table = doc.add_table(rows=1, cols=1)
             table.autofit = False
             cell = table.cell(0, 0)
             cell.width = Inches(6.5)
             
-            set_cell_background(cell, "F5F5F5")
+            # Sombreado de fondo
+            code_bg = config.get('code_bg_color', 'F5F5F5')
+            if code_bg.startswith('#'):
+                code_bg = code_bg[1:]
+            set_cell_background(cell, code_bg)
             
+            # Borde izquierdo con color corporativo
+            border_color = config.get('primary_color', '1F4E79')
+            if border_color.startswith('#'):
+                border_color = border_color[1:]
+                
             tcPr = cell._tc.get_or_add_tcPr()
-            tcBorders = parse_xml(r'<w:tcBorders xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                                  r'<w:top w:val="none"/>'
-                                  r'<w:left w:val="single" w:sz="18" w:space="0" w:color="2E74B5"/>'
-                                  r'<w:bottom w:val="none"/>'
-                                  r'<w:right w:val="none"/>'
-                                  r'</w:tcBorders>')
+            tcBorders = parse_xml(f'<w:tcBorders {nsdecls("w")}>'
+                                  f'<w:top w:val="none"/>'
+                                  f'<w:left w:val="single" w:sz="18" w:space="0" w:color="{border_color}"/>'
+                                  f'<w:bottom w:val="none"/>'
+                                  f'<w:right w:val="none"/>'
+                                  f'</w:tcBorders>')
             tcPr.append(tcBorders)
             
             p = cell.paragraphs[0]
-            p.paragraph_format.space_after = Pt(0)
-            p.paragraph_format.line_spacing = 1.0
+            p.style = 'codigo'
             
             code_text = "\n".join(block['lines'])
-            run = p.add_run(code_text)
-            run.font.name = 'Courier New'
-            run.font.size = Pt(9)
-            run.font.color.rgb = RGBColor(60, 60, 60)
+            run_code = p.add_run(code_text)
+            run_code.font.name = config.get('code_font', 'Consolas')
             
+            # Salto después de la tabla
             spacer = doc.add_paragraph()
             spacer.paragraph_format.space_before = Pt(0)
             spacer.paragraph_format.space_after = Pt(6)
             
+        elif block['type'] == 'image':
+            alt = block['alt']
+            src = block['src']
+            
+            # Resolver ruta
+            img_path = os.path.join(base_dir, src) if base_dir else src
+            img_path = img_path.split('?')[0].strip('"\'')
+            
+            if os.path.exists(img_path):
+                try:
+                    p_img = doc.add_paragraph()
+                    p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    p_img.paragraph_format.space_before = Pt(12)
+                    p_img.paragraph_format.space_after = Pt(4)
+                    p_img.paragraph_format.keep_with_next = True
+                    
+                    run_img = p_img.add_run()
+                    run_img.add_picture(img_path, width=Inches(5.5))
+                    
+                    # Caption
+                    bookmark_name = f"_Ref_Fig_{sanitize_bookmark_name(alt)}"
+                    add_figure_caption(doc, alt, bookmark_name, state, config)
+                except Exception as e:
+                    p_err = doc.add_paragraph()
+                    r_err = p_err.add_run(f"[Error al insertar imagen '{src}': {str(e)}]")
+                    r_err.font.color.rgb = RGBColor(255, 0, 0)
+                    r_err.font.italic = True
+            else:
+                p_err = doc.add_paragraph()
+                r_err = p_err.add_run(f"[Imagen no encontrada: '{src}']")
+                r_err.font.color.rgb = RGBColor(255, 0, 0)
+                r_err.font.italic = True
+                
         elif block['type'] == 'table':
             rows_data = block['rows']
+            caption = block.get('caption')
+            
             if not rows_data:
                 continue
+                
+            # Caption arriba de la tabla
+            if caption:
+                bookmark_name = f"_Ref_Tabla_{sanitize_bookmark_name(caption)}"
+                add_table_caption(doc, caption, bookmark_name, state, config)
                 
             cols_count = len(rows_data[0])
             table = doc.add_table(rows=len(rows_data), cols=cols_count)
             table.style = 'Table Grid'
             table.autofit = True
             
+            primary_color_hex = config.get('primary_color', '1F4E79')
+            if primary_color_hex.startswith('#'):
+                primary_color_hex = primary_color_hex[1:]
+                
             for r_idx, row_data in enumerate(rows_data):
                 row = table.rows[r_idx]
                 is_header = (r_idx == 0)
@@ -325,15 +773,17 @@ def create_docx(blocks, output_path):
                     p.paragraph_format.space_before = Pt(2)
                     
                     if is_header:
-                        set_cell_background(cell, "2E74B5")
-                        run = p.add_run()
-                        run.bold = True
-                        run.font.color.rgb = RGBColor(255, 255, 255)
-                        add_runs_to_paragraph(p, cell_value)
+                        set_cell_background(cell, primary_color_hex)
+                        p.style = 'Normal'
+                        add_runs_to_paragraph(p, cell_value, config, state)
+                        # Cabeceras en blanco y negrita
+                        for r in p.runs:
+                            r.bold = True
+                            r.font.color.rgb = RGBColor(255, 255, 255)
                     else:
                         if r_idx % 2 == 0:
                             set_cell_background(cell, "F2F5F8")
-                        add_runs_to_paragraph(p, cell_value)
+                        add_runs_to_paragraph(p, cell_value, config, state)
             
             spacer = doc.add_paragraph()
             spacer.paragraph_format.space_before = Pt(0)
@@ -355,5 +805,16 @@ if __name__ == '__main__':
     print(f"Analizando {src}...")
     blocks = parse_markdown(src)
     print(f"Generando {dst}...")
-    create_docx(blocks, dst)
+    
+    # Configuración por defecto de la CLI tradicional
+    default_config = {
+        'heading_font': 'Aptos Display',
+        'body_font': 'Calibri',
+        'code_font': 'Consolas',
+        'primary_color': '1F4E79',
+        'toc_enabled': True,
+        'shift_headings': False
+    }
+    
+    create_docx(blocks, dst, default_config, os.path.dirname(os.path.abspath(src)))
     print("¡Proceso completado exitosamente!")

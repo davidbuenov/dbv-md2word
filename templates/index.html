@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<!--
+  dbv-md2word — Conversor personalizable de Markdown a Word (.docx) con interfaz visual local
+  Copyright (c) 2026 David Bueno Vallejo · https://github.com/davidbuenov
+  Licensed under the MIT License. See LICENSE for details.
+  Built with dbv-specs-ops · https://github.com/davidbuenov/dbv-specs-ops
+-->
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dbv-md2word — Conversor Premium Markdown a Word</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="light-mode">
+    <div class="background-decor">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <i class="fa-solid fa-file-word brand-icon"></i>
+                <div class="brand-text">
+                    <h1>dbv-md2word</h1>
+                    <p class="subtitle">Conversión estructurada y premium de Markdown a Word</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button id="theme-toggle" class="theme-btn" aria-label="Cambiar tema">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="app-main">
+            <!-- Sidebar: Config Options -->
+            <section class="panel style-panel">
+                <h2 class="panel-title"><i class="fa-solid fa-sliders"></i> Personalización de Estilos</h2>
+                
+                <form id="style-form">
+                    <!-- Color Picker -->
+                    <div class="form-group">
+                        <label class="form-label">Color Corporativo (Títulos y Bordes)</label>
+                        <div class="color-picker-wrapper">
+                            <div class="color-presets">
+                                <button type="button" class="color-preset active" data-color="#1F4E79" style="background-color: #1F4E79;" title="Azul Corporativo"></button>
+                                <button type="button" class="color-preset" data-color="#10B981" style="background-color: #10B981;" title="Esmeralda"></button>
+                                <button type="button" class="color-preset" data-color="#6366F1" style="background-color: #6366F1;" title="Índigo"></button>
+                                <button type="button" class="color-preset" data-color="#EC4899" style="background-color: #EC4899;" title="Rosa Eléctrico"></button>
+                                <button type="button" class="color-preset" data-color="#EAB308" style="background-color: #EAB308;" title="Ámbar"></button>
+                            </div>
+                            <div class="custom-color-input">
+                                <input type="color" id="primary-color-picker" value="#1F4E79">
+                                <input type="text" id="primary-color-hex" value="#1F4E79" placeholder="#FFFFFF" maxlength="7">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Font selections -->
+                    <div class="form-group">
+                        <label for="heading-font" class="form-label">Tipografía para Títulos (H1 - H4)</label>
+                        <div class="select-wrapper">
+                            <select id="heading-font" name="heading_font">
+                                <option value="Aptos Display" selected>Aptos Display (Word Recomendado)</option>
+                                <option value="Outfit">Outfit (Moderna Geométrica)</option>
+                                <option value="Arial">Arial (Sansa Serif Estándar)</option>
+                                <option value="Georgia">Georgia (Serif Editorial)</option>
+                                <option value="Trebuchet MS">Trebuchet MS</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down select-arrow"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="body-font" class="form-label">Tipografía para Texto Normal</label>
+                        <div class="select-wrapper">
+                            <select id="body-font" name="body_font">
+                                <option value="Calibri" selected>Calibri (Word Estándar)</option>
+                                <option value="Aptos">Aptos (Nueva Fuente Office)</option>
+                                <option value="Inter">Inter (Legibilidad Premium)</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Georgia">Georgia</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down select-arrow"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="code-font" class="form-label">Tipografía para Código (Monospace)</label>
+                        <div class="select-wrapper">
+                            <select id="code-font" name="code_font">
+                                <option value="Consolas" selected>Consolas (Recomendado)</option>
+                                <option value="Courier New">Courier New (Tradicional)</option>
+                                <option value="Lucida Console">Lucida Console</option>
+                            </select>
+                            <i class="fa-solid fa-chevron-down select-arrow"></i>
+                        </div>
+                    </div>
+
+                    <hr class="form-divider">
+
+                    <!-- Document Features -->
+                    <div class="form-group toggle-group">
+                        <div class="toggle-text">
+                            <span class="toggle-title">Tabla de Contenidos (TOC)</span>
+                            <span class="toggle-desc">Inserta un índice dinámico al inicio</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="toc-enabled" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-group toggle-group">
+                        <div class="toggle-text">
+                            <span class="toggle-title">Numeración y Referencias</span>
+                            <span class="toggle-desc">Campos SEQ y REF para figuras/tablas</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="numbering-enabled" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="form-group toggle-group">
+                        <div class="toggle-text">
+                            <span class="toggle-title">Desplazar Títulos (H2 -> Título 1)</span>
+                            <span class="toggle-desc">H1 como 'Título' y H2 como 'Título 1'</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="shift-headings">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Files and conversion panel -->
+            <section class="panel files-panel">
+                <h2 class="panel-title"><i class="fa-solid fa-cloud-arrow-up"></i> Carga de Archivos</h2>
+
+                <!-- Drag and Drop Area -->
+                <div id="drop-zone" class="drop-zone">
+                    <input type="file" id="file-input" multiple accept=".md,.png,.jpg,.jpeg,.gif" class="hidden-file-input">
+                    <div class="drop-zone-content">
+                        <i class="fa-solid fa-file-lines drop-icon"></i>
+                        <h3>Arrastra tus archivos aquí</h3>
+                        <p>Soporta múltiples documentos <span>.md</span> e imágenes para figuras (<span>.png, .jpg, .gif</span>)</p>
+                        <button type="button" class="btn btn-secondary select-files-btn">Examinar archivos</button>
+                    </div>
+                </div>
+
+                <!-- Files Lists -->
+                <div id="files-list-container" class="files-list-container hidden">
+                    <div class="file-list-section">
+                        <h3><i class="fa-solid fa-file-code"></i> Documentos Markdown (<span id="md-count">0</span>)</h3>
+                        <ul id="md-list" class="file-list"></ul>
+                    </div>
+                    <div class="file-list-section">
+                        <h3><i class="fa-solid fa-image"></i> Imágenes de Soporte (<span id="img-count">0</span>)</h3>
+                        <ul id="img-list" class="file-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Convert Trigger -->
+                <div class="action-container">
+                    <button type="button" id="convert-btn" class="btn btn-primary btn-large" disabled>
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Convertir a Word (.docx)
+                    </button>
+                </div>
+
+                <!-- Word Warnings -->
+                <div class="word-alert">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <div>
+                        <strong>Nota importante de Microsoft Word:</strong>
+                        Al abrir los documentos generados, Word te preguntará si deseas actualizar los campos vinculados. Haz clic en <strong>Sí</strong> para actualizar automáticamente el Índice y las numeraciones de figuras/tablas.
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Result Section (Modales / Alerts) -->
+        <section id="result-panel" class="panel result-panel hidden">
+            <h2 class="panel-title"><i class="fa-solid fa-circle-check"></i> Conversión Completada</h2>
+            <p>Se han convertido los documentos de manera exitosa utilizando los estilos nativos.</p>
+            <div id="download-list" class="download-list"></div>
+            <div class="result-actions">
+                <button id="download-zip-btn" class="btn btn-primary"><i class="fa-solid fa-file-zipper"></i> Descargar Todo (.zip)</button>
+                <button id="reset-btn" class="btn btn-secondary"><i class="fa-solid fa-rotate-left"></i> Convertir más archivos</button>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Creado por <strong>David Bueno Vallejo</strong> en colaboración con <strong>Antigravity</strong> · Licencia MIT</p>
+            <p class="framework-tag">Desarrollado bajo metodología SDD con dbv-specs-ops v1.5.2</p>
+        </footer>
+    </div>
+
+    <!-- Script de lógica frontend -->
+    <script src="/static/app.js"></script>
+</body>
+</html>

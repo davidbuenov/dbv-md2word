@@ -12,7 +12,7 @@
 | --- | --- | --- |
 | **Lenguaje Backend** | Python 3.8+ | Lenguaje del script original y compatible con la librería `python-docx`. |
 | **Lenguaje Frontend** | HTML5, JavaScript (ES6+), Vanilla CSS | Interfaz ligera, altamente responsiva y fácil de diseñar con estética premium sin dependencias pesadas de Node.js. |
-| **Servidor Local** | Flask 3.0+ | Framework web micro y rápido en Python. Ideal para aplicaciones de escritorio híbridas locales. |
+| **Servidor Local** | FastAPI + Uvicorn | Servidor ASGI rápido y robusto de grado de producción en Python. Elimina warnings de desarrollo. |
 | **Generación Word** | python-docx 1.2+ | Librería líder en Python para manipulación directa del formato OpenXML (.docx). |
 | **Testing** | unittest (Python built-in) | Evitamos dependencias externas adicionales para testing. |
 
@@ -66,6 +66,6 @@ Word procesa campos de instrucción dinámica. Usaremos manipulación XML (`pyth
 ## ⚠️ Restricciones y Riesgos Técnicos
 
 - **Acceso a Archivos Locales:** Un servidor web en navegador no puede acceder directamente al sistema de archivos local del cliente por motivos de seguridad. 
-  - **Mitigación:** Los archivos Markdown cargados mediante arrastre se suben a la memoria del servidor Flask. La conversión se realiza en el backend y los archivos Word resultantes se devuelven para su descarga inmediata, o se guardan en una carpeta `outputs/` si el usuario lo desea.
-- **Rutas de Imágenes:** Si el Markdown contiene imágenes relativas (ej. `![Diagrama](images/diag.png)`), el servidor Flask necesita resolver esa ruta.
+  - **Mitigación:** Los archivos Markdown cargados mediante arrastre se suben a la memoria del servidor FastAPI. La conversión se realiza en el backend y los archivos Word resultantes se devuelven para su descarga inmediata.
+- **Rutas de Imágenes:** Si el Markdown contiene imágenes relativas (ej. `![Diagrama](images/diag.png)`), el servidor FastAPI/Uvicorn necesita resolver esa ruta.
   - **Mitigación:** La API de conversión aceptará una estructura donde el usuario puede arrastrar tanto el Markdown como sus imágenes asociadas, o bien la herramienta resolverá las imágenes si se ejecuta mediante la CLI tradicional. En la interfaz web, se permitirá al usuario subir las imágenes correspondientes junto al archivo markdown.

@@ -9,7 +9,7 @@
 ## 🎯 1. Contexto y Objetivos
 
 - **Problema:** Los conversores genéricos de Markdown a Word (incluyendo el script anterior) no utilizan adecuadamente los estilos nativos de Microsoft Word (como "Título 1", "Título 2", "Normal"), sino que aplican formato directo (fuente, tamaño, color) sobre texto normal. Esto genera archivos Word "sucios" y difíciles de editar o formatear posteriormente. Además, no se generan índices reales de Word (TOC) ni numeración automática de figuras y tablas con referencias cruzadas reales de Word.
-- **Objetivo (Éxito):** Crear una aplicación web local potente e interactiva con backend en Python (Flask) y frontend en HTML/CSS/JS que permita a los usuarios cargar por arrastre (drag-and-drop) múltiples archivos Markdown y convertirlos a documentos de Word (.docx) perfectamente estructurados. El usuario podrá personalizar las fuentes, colores corporativos y activar opciones avanzadas (TOC, numeración automática de figuras/tablas y referencias cruzadas nativas).
+- **Objetivo (Éxito):** Crear una aplicación web local potente e interactiva con backend en Python (FastAPI) y frontend en HTML/CSS/JS que permita a los usuarios cargar por arrastre (drag-and-drop) múltiples archivos Markdown y convertirlos a documentos de Word (.docx) perfectamente estructurados. El usuario podrá personalizar las fuentes, colores corporativos y activar opciones avanzadas (TOC, numeración automática de figuras/tablas y referencias cruzadas nativas).
 
 ## 👥 2. Usuarios y Escenarios
 
@@ -39,8 +39,8 @@
 
 ## 🏗️ 4. Propuesta de Solución Técnica (Resumen)
 
-- **Enfoque:** Servidor local Flask en Python 3 para el backend y panel en HTML/CSS/JS con Vanilla CSS.
-- **Dependencias Críticas:** `python-docx` para manipulación de archivos Word XML, `Flask` para el servidor web local.
+- **Enfoque:** Servidor local FastAPI (Uvicorn) en Python 3 para el backend y panel en HTML/CSS/JS con Vanilla CSS.
+- **Dependencias Críticas:** `python-docx` para manipulación de archivos Word XML, `fastapi` y `uvicorn` para el servidor web local.
 - **Sistema de Diseño:** Ver `docs/DESIGN.md` para el estilo visual premium (oscuro/claro, transiciones fluidas, tipografía Outfit/Inter).
 
 ## 🚫 5. Fuera de Alcance (Out of Scope)
@@ -57,4 +57,4 @@
 
 ## ❓ 7. Preguntas Abiertas
 
-*No hay preguntas abiertas críticas pendientes para la fase inicial de desarrollo.*
+*No hay preguntas abiertas críticas pendientes para la fa
