@@ -33,8 +33,10 @@ La herramienta incluye una **interfaz web local interactiva** que permite config
 <a name="requirements"></a>
 ## 🧰 Requisitos
 
-- Python 3.12 o superior
-- Pip (Administrador de paquetes de Python)
+- **Python 3.12 o superior** (Puedes descargarlo desde la [Web oficial de Python](https://www.python.org/downloads/)).
+  - *Recomendación:* Se recomienda descargar el **Standalone Installer** (instalador ejecutable estándar) en lugar de la versión de la tienda de aplicaciones.
+  - *⚠️ Muy importante (Windows):* Durante la instalación en Windows, asegúrate de marcar la casilla **"Add python.exe to PATH"** (Añadir python.exe al PATH) para que la consola reconozca el comando.
+- **Pip** (Administrador de paquetes de Python): Se instala de forma automática junto con Python, por lo que no requieres realizar ninguna instalación adicional.
 
 ---
 
