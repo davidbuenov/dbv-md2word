@@ -15,7 +15,7 @@ from docx import Document
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from convert_md_to_docx import sanitize_bookmark_name, parse_markdown, create_docx
+from convert_md_to_docx import sanitize_bookmark_name, parse_markdown, create_docx, load_default_config
 
 class TestConverter(unittest.TestCase):
     
@@ -148,5 +148,42 @@ class TestConverter(unittest.TestCase):
             if os.path.exists(temp_out_path):
                 os.remove(temp_out_path)
 
+    def test_load_default_config(self):
+        """Prueba que la configuración por defecto se cargue correctamente."""
+        config = load_default_config()
+        self.assertIsInstance(config, dict)
+        self.assertIn('heading_font', config)
+        self.assertIn('body_font', config)
+        self.assertIn('code_font', config)
+        self.assertIn('primary_color', config)
+        self.assertIn('toc_enabled', config)
+
+    def test_body_alignment(self):
+        """Prueba que la justificación del texto normal se aplique correctamente."""
+        blocks = [
+            {'type': 'paragraph', 'text': 'Texto normal que debe alinearse.'}
+        ]
+        with tempfile.NamedTemporaryFile(suffix='.docx', delete=False) as f:
+            temp_out_path = f.name
+            
+        try:
+            # Prueba 1: Justificado
+            create_docx(blocks, temp_out_path, {'body_align': 'justify'})
+            doc1 = Document(temp_out_path)
+            style_normal = doc1.styles['Normal']
+            from docx.enum.text import WD_ALIGN_PARAGRAPH
+            self.assertEqual(style_normal.paragraph_format.alignment, WD_ALIGN_PARAGRAPH.JUSTIFY)
+            
+            # Prueba 2: Alineado a la izquierda
+            create_docx(blocks, temp_out_path, {'body_align': 'left'})
+            doc2 = Document(temp_out_path)
+            style_normal2 = doc2.styles['Normal']
+            self.assertEqual(style_normal2.paragraph_format.alignment, WD_ALIGN_PARAGRAPH.LEFT)
+            
+        finally:
+            if os.path.exists(temp_out_path):
+                os.remove(temp_out_path)
+
 if __name__ == '__main__':
     unittest.main()
+

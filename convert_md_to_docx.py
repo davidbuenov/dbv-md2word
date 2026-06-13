@@ -79,6 +79,12 @@ def configure_document_styles(doc, config):
     font_normal.name = config.get('body_font', 'Calibri')
     font_normal.size = Pt(11)
     
+    body_align = config.get('body_align', 'justify')
+    if body_align == 'justify':
+        style_normal.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    else:
+        style_normal.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        
     primary_color_hex = config.get('primary_color', '1F4E79')
     if primary_color_hex.startswith('#'):
         primary_color_hex = primary_color_hex[1:]
@@ -132,6 +138,7 @@ def configure_document_styles(doc, config):
     font_code.color.rgb = RGBColor(60, 60, 60)
     style_code.paragraph_format.space_after = Pt(0)
     style_code.paragraph_format.line_spacing = 1.0
+    style_code.paragraph_format.alignment = WD_ALIGN_PARAGRAPH.LEFT  # Forzar alineación a la izquierda
     style_code.quick_style = True
     
     # Estilo de código en línea ('codigo_car' - carácter)
@@ -251,6 +258,7 @@ def add_table_caption(doc, text, bookmark_name, state, config):
     p.paragraph_format.space_before = Pt(16)
     p.paragraph_format.space_after = Pt(4)
     p.paragraph_format.keep_with_next = True
+    p.alignment = WD_ALIGN_PARAGRAPH.LEFT  # Forzar alineación a la izquierda
     
     body_font = config.get('body_font', 'Aptos')
     run_prefix = p.add_run("Tabla ")
@@ -790,6 +798,30 @@ def create_docx(blocks, output_path, config=None, base_dir=None):
             
     doc.save(output_path)
 
+def load_default_config():
+    """Carga la configuración por defecto desde config.json o retorna fallbacks."""
+    default_config = {
+        'heading_font': 'Aptos Display',
+        'body_font': 'Aptos',
+        'code_font': 'Consolas',
+        'body_align': 'justify',
+        'primary_color': '#1F4E79',
+        'toc_enabled': True,
+        'numbering_enabled': True,
+        'shift_headings': False
+    }
+    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
+    if os.path.exists(config_path):
+        import json
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                loaded = json.load(f)
+                for k, v in loaded.items():
+                    default_config[k] = v
+        except Exception:
+            pass
+    return default_config
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("Uso: python convert_md_to_docx.py <archivo.md> [archivo.docx]")
@@ -806,14 +838,8 @@ if __name__ == '__main__':
     print(f"Generando {dst}...")
     
     # Configuración por defecto de la CLI tradicional
-    default_config = {
-        'heading_font': 'Aptos Display',
-        'body_font': 'Calibri',
-        'code_font': 'Consolas',
-        'primary_color': '1F4E79',
-        'toc_enabled': True,
-        'shift_headings': False
-    }
+    default_config = load_default_config()
     
     create_docx(blocks, dst, default_config, os.path.dirname(os.path.abspath(src)))
     print("¡Proceso completado exitosamente!")
+

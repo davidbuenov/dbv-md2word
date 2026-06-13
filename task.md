@@ -20,5 +20,5 @@
 ---
 
 ## 📸 Snapshot de Contexto (Próximo Paso)
-- **Versión Liberada:** `v0.2.0` (Cambios confirmados y versión etiquetada).
-- **Siguiente Objetivo:** Continuar probando conversiones de documentos markdown más complejos para validar el comportamiento tipográfico de "Aptos" y "Aptos Display". Añadir soporte para nuevas personalizaciones estéticas en la barra lateral (como estilos de tablas o bordes de párrafos).
+- **Versión Liberada:** `v1.0.0` (Versión inicial estable con interfaz gráfica web local, personalización de alineación del texto normal, campos dinámicos nativos de Word en español, corrección de dependencias y exclusión de temporales).
+- **Siguiente Objetivo:** Optimizar el rendimiento de la conversión para archivos masivos y agregar soporte para estilos de tablas personalizados avanzados en el backend.

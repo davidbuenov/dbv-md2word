@@ -362,6 +362,53 @@ input[type="color"]::-webkit-color-swatch {
     border-color: var(--color-secondary);
 }
 
+/* Alignment Selector */
+.alignment-selector {
+    display: flex;
+    background-color: var(--color-neutral);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--rounded-md);
+    padding: 3px;
+    gap: 2px;
+    width: 100%;
+}
+
+.hidden-radio {
+    display: none;
+}
+
+.alignment-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: var(--rounded-sm);
+    color: var(--color-on-neutral);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.alignment-btn:hover {
+    color: var(--color-on-surface);
+    background-color: rgba(var(--color-primary-rgb), 0.03);
+}
+
+.hidden-radio:checked + .alignment-btn {
+    background-color: var(--color-surface);
+    color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+.dark-mode .hidden-radio:checked + .alignment-btn {
+    background-color: #1e293b;
+    color: var(--color-primary);
+}
+
 /* Toggle Switch */
 .toggle-group {
     display: flex;

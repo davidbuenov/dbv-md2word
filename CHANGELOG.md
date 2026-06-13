@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.0.0] — 2026-06-13
+
+### Added
+- **Alineación de Texto Normal:** Nueva opción para elegir la alineación del texto del cuerpo del documento (Justificado o Alineado a la izquierda) desde la interfaz gráfica y el archivo de configuración. Por defecto, el texto normal se genera justificado, mientras que los bloques de código y las leyendas de tablas se mantienen alineados a la izquierda.
+
+### Fixed
+- **Dependencia de `werkzeug`:** Se añadió `werkzeug>=2.0.0` a [requirements.txt](file:///d:/Programacion/github-davidbuenov/dbv-md2word/requirements.txt) para solucionar el error `ModuleNotFoundError: No module named 'werkzeug'` al arrancar el servidor con `start.cmd`.
+
+---
+
 ## [0.2.0] — 2026-06-13
 
 ### Added
@@ -41,3 +51,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Referencias Cruzadas:** Detección de marcadores tipo `[Fig. X]` o `[Tabla Y]` en texto y reemplazo por campos dinámicos `REF` a bookmarks automáticos.
 - **Interfaz Gráfica Web Local (GUI):** Servidor Flask local con un panel web interactivo en HTML5/CSS/JS con Drag & Drop para convertir múltiples archivos.
 - **Entorno Virtual y Scripts:** Entorno virtual `venv` local y scripts de automatización multiplataforma `start.cmd`/`stop.cmd` y `start.sh`/`stop.sh`.
+
+[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/davidbuenov/dbv-md2word/compare/v0.2.0...v1.0.0
+[0.2.0]: https://github.com/davidbuenov/dbv-md2word/compare/v0.1.1...v0.2.0
+[0.1.1]: https://github.com/davidbuenov/dbv-md2word/releases/tag/v0.1.1
+

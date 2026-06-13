@@ -6,6 +6,11 @@
    ============================================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Check if opened via file:// protocol
+    if (window.location.protocol === 'file:') {
+        alert('ATENCIÓN: Estás abriendo el archivo HTML directamente desde el explorador de archivos.\n\nPara que la conversión funcione, debes iniciar el servidor ejecutando "start.cmd" y acceder desde la URL de localhost (ej. http://127.0.0.1:puerto) que se abre automáticamente.');
+    }
+
     // State management
     const state = {
         markdownFiles: [],
@@ -249,6 +254,10 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('heading_font', document.getElementById('heading-font').value);
         formData.append('body_font', document.getElementById('body-font').value);
         formData.append('code_font', document.getElementById('code-font').value);
+        
+        const bodyAlignInput = document.querySelector('input[name="body_align"]:checked');
+        formData.append('body_align', bodyAlignInput ? bodyAlignInput.value : 'justify');
+        
         formData.append('primary_color', primaryColorHex.value);
         formData.append('toc_enabled', document.getElementById('toc-enabled').checked);
         formData.append('numbering_enabled', document.getElementById('numbering-enabled').checked);
@@ -261,8 +270,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                const errData = await response.json();
-                throw new Error(errData.error || 'Error desconocido al procesar la conversión.');
+                let errorMessage = 'Error desconocido al procesar la conversión.';
+                try {
+                    const errData = await response.json();
+                    errorMessage = errData.detail || errData.error || errData.message || errorMessage;
+                    if (typeof errorMessage === 'object') {
+                        errorMessage = JSON.stringify(errorMessage);
+                    }
+                } catch (e) {}
+                throw new Error(errorMessage);
             }
 
             // Retrieve converted files information (from Custom Headers or JSON or Blob name)
@@ -283,7 +299,11 @@ document.addEventListener('DOMContentLoaded', () => {
             displayResults(filename, downloadUrl);
 
         } catch (error) {
-            alert(`Error de conversión: ${error.message}`);
+            let msg = error.message;
+            if (msg === 'Failed to fetch') {
+                msg = 'Failed to fetch (Error de conexión).\n\nEsto suele ocurrir si:\n1. El servidor se detuvo o cambió de puerto (cierra esta pestaña y vuelve a ejecutar start.cmd).\n2. Has abierto el archivo HTML directamente desde el explorador (debes usar la dirección http://127.0.0.1:puerto que se abre de forma automática).';
+            }
+            alert(`Error de conversión: ${msg}`);
             convertBtn.disabled = false;
             convertBtn.innerHTML = originalBtnHTML;
         }
@@ -363,6 +383,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (config.body_font) {
                     const bodyFontSelect = document.getElementById('body-font');
                     if (bodyFontSelect) bodyFontSelect.value = config.body_font;
+                }
+                
+                if (config.body_align) {
+                    const alignRadio = document.querySelector(`input[name="body_align"][value="${config.body_align}"]`);
+                    if (alignRadio) alignRadio.checked = true;
                 }
                 
                 if (config.code_font) {

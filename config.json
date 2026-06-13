@@ -2,6 +2,7 @@
     "heading_font": "Aptos Display",
     "body_font": "Aptos",
     "code_font": "Consolas",
+    "body_align": "justify",
     "primary_color": "#1F4E79",
     "toc_enabled": true,
     "numbering_enabled": true,

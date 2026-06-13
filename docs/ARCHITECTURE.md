@@ -10,7 +10,7 @@
 
 | Capa | Tecnología | Justificación |
 | --- | --- | --- |
-| **Lenguaje Backend** | Python 3.8+ | Lenguaje del script original y compatible con la librería `python-docx`. |
+| **Lenguaje Backend** | Python 3.12+ | Lenguaje del script original y compatible con la librería `python-docx`. |
 | **Lenguaje Frontend** | HTML5, JavaScript (ES6+), Vanilla CSS | Interfaz ligera, altamente responsiva y fácil de diseñar con estética premium sin dependencias pesadas de Node.js. |
 | **Servidor Local** | FastAPI + Uvicorn | Servidor ASGI rápido y robusto de grado de producción en Python. Elimina warnings de desarrollo. |
 | **Generación Word** | python-docx 1.2+ | Librería líder en Python para manipulación directa del formato OpenXML (.docx). |
