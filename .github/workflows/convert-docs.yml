@@ -1,0 +1,35 @@
+# =============================================================================
+# dbv-md2word — Conversor personalizable de Markdown a Word (.docx) con interfaz visual local
+# Copyright (c) 2026 David Bueno Vallejo · https://github.com/davidbuenov
+# Licensed under the MIT License. See LICENSE for details.
+# Built with dbv-specs-ops · https://github.com/davidbuenov/dbv-specs-ops
+# =============================================================================
+
+name: Test dbv-md2word Action
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'README.md'
+      - '.github/workflows/convert-docs.yml'
+
+jobs:
+  test-conversion:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Convert README.md to Word
+        uses: ./
+        with:
+          source: 'README.md'
+          output: 'dist/README.docx'
+
+      - name: Upload docx as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: converted-readme
+          path: dist/README.docx
