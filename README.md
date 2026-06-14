@@ -8,6 +8,10 @@
 - [Requisitos](#requirements)
 - [Instalación](#installation)
 - [Cómo ejecutar](#usage)
+  - [Interfaz Web](#usage-web)
+  - [Línea de Comandos (CLI)](#usage-cli)
+  - [Servidor MCP (Model Context Protocol)](#usage-mcp)
+  - [GitHub Action](#usage-github-action)
 - [Cómo parar](#stop)
 - [Estructura del proyecto](#structure)
 - [Changelog](#changelog)
@@ -66,6 +70,8 @@ pip install -r requirements.txt
 <a name="usage"></a>
 ## ▶️ Cómo ejecutar
 
+<a name="usage-web"></a>
+### 💻 Interfaz Web
 Utiliza los scripts de arranque rápido incluidos en la raíz del proyecto. Estos scripts activarán el entorno virtual de Python, instalarán las dependencias necesarias de forma automática y levantarán el servidor.
 
 **Windows:**
@@ -84,14 +90,77 @@ chmod +x start.sh
 Una vez iniciado el servidor, la aplicación abrirá automáticamente tu navegador en la dirección:
 `http://127.0.0.1:puerto` (el puerto se asigna dinámicamente de forma automática).
 
-### 📝 Uso por Línea de Comandos (CLI)
+<a name="usage-cli"></a>
+### 📝 Línea de Comandos (CLI)
 Si prefieres no usar la interfaz web, puedes realizar conversiones directamente desde la consola:
 ```bash
 # Activa el entorno virtual
 venv\Scripts\activate
 
 # Ejecuta el convertidor tradicional (usará fuentes y colores por defecto)
-python convert_md_to_docx.py <archivo.md> [archivo_salida.docx]
+python convert_md_to_docx.py <archivo.md> [archivo_salida.docx] [config.json]
+```
+
+<a name="usage-mcp"></a>
+### 🤖 Servidor MCP (Model Context Protocol)
+El proyecto incluye un servidor MCP (`mcp_server.py`) que expone la herramienta `convert_markdown_to_docx` a entornos de agentes LLM como **Cursor**, **Windsurf** o **Claude Desktop**. Esto permite que un agente de IA convierta tus archivos Markdown a Word bajo demanda y con estilos premium.
+
+#### Configuración en Claude Desktop
+Añade lo siguiente a tu archivo de configuración de Claude Desktop (`%APPDATA%\Claude\claude_desktop_config.json` en Windows o `~/Library/Application Support/Claude/claude_desktop_config.json` en macOS):
+
+```json
+{
+  "mcpServers": {
+    "dbv-md2word": {
+      "command": "D:/Programacion/github-davidbuenov/dbv-md2word/venv/Scripts/python.exe",
+      "args": [
+        "D:/Programacion/github-davidbuenov/dbv-md2word/mcp_server.py"
+      ]
+    }
+  }
+}
+```
+*(Asegúrate de ajustar las rutas absolutas al ejecutable de python en tu entorno virtual y a mcp_server.py)*.
+
+#### Configuración en Cursor o Windsurf
+Añade un nuevo servidor MCP en los ajustes de tu IDE con los siguientes valores:
+- **Name**: `dbv-md2word`
+- **Type**: `command`
+- **Command**: `D:/Programacion/github-davidbuenov/dbv-md2word/venv/Scripts/python.exe D:/Programacion/github-davidbuenov/dbv-md2word/mcp_server.py`
+
+<a name="usage-github-action"></a>
+### 🐙 GitHub Action
+Puedes integrar `dbv-md2word` directamente en tus flujos de integración continua (CI/CD) para compilar documentación Markdown a Word automáticamente en cada confirmación de cambios.
+
+Añade un flujo de trabajo a tu repositorio (por ejemplo, `.github/workflows/convert-docs.yml`):
+
+```yaml
+name: Convertir Documentación a Word
+
+on:
+  push:
+    paths:
+      - '**.md'
+
+jobs:
+  build-docx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar Código
+        uses: actions/checkout@v4
+
+      - name: Convertir Markdown a Word
+        uses: davidbuenov/dbv-md2word@master  # O usa un tag de versión estable
+        with:
+          source: 'README.md'
+          output: 'dist/README.docx'
+          config: 'config.json' # Opcional
+
+      - name: Subir Documento Word Generado
+        uses: actions/upload-artifact@v4
+        with:
+          name: Word-Document
+          path: dist/README.docx
 ```
 
 > ⚠️ **IMPORTANTE (Actualización de Campos en Word):**  

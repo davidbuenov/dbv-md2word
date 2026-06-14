@@ -18,6 +18,9 @@
 - **2026-06-13 - Estructura XML Secuencial Correcta para Campos de Word:** Los campos dinámicos (TOC, SEQ, REF) deben construirse en el orden estricto de Word OpenXML: `begin` -> `instrText` (código del campo) -> `separate` -> `result/placeholder` -> `end`. Separar esto en runs consecutivos y en orden evita que el placeholder quede fuera del campo, lo cual impedía su correcta actualización en Word.
 - **2026-06-13 - Configuración Centralizada y Consistente (`config.json`):** Se introdujo `config.json` para definir las opciones iniciales por defecto (como la fuente "Aptos"). Esto unifica los fallbacks en la CLI y permite sincronizar dinámicamente la Web GUI al iniciar consultando la API `/api/config`.
 - **2026-06-13 - Control de Alineación del Cuerpo y Código:** Se implementó el soporte para la alineación del texto normal (justificado por defecto). Los bloques de código y las leyendas de tablas se forzaron de manera explícita a la izquierda (`LEFT`) para garantizar una legibilidad adecuada, evitando heredar la alineación justificada del estilo normal del que heredan.
+- **2026-06-14 - Integración de Servidor MCP via FastMCP:** Implementación de un punto de acceso MCP en `mcp_server.py` utilizando FastMCP para dar soporte nativo a agentes de IA. Se identificó que `FastMCP` no acepta el keyword argument `description` en su inicializador en la versión actual.
+- **2026-06-14 - Acción Compuesta en Lugar de Docker:** Uso de un GitHub Composite Runner en `action.yml` para evitar el retraso de compilación de Docker y dar soporte multiplataforma nativo a runners Windows, macOS y Linux.
+- **2026-06-14 - Pasaje Seguro de Argumentos Opcionales en CI:** Construcción de arrays de argumentos condicionales en bash (`ARGS`) para evitar enviar strings vacías a `convert_md_to_docx.py`.
 
 ## ⚠️ Lecciones Aprendidas / Errores Evitados
 

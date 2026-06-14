@@ -1,24 +1,32 @@
 # Tareas de Implementación — dbv-md2word
 
 - [x] **Task 1: Refactorizar `convert_md_to_docx.py`**
-    - [x] Crear la función `add_field` para formatear correctamente la secuencia de elementos XML de los campos de Word.
-    - [x] Refactorizar `add_toc`, `add_figure_caption`, `add_table_caption` y `add_cross_reference` para que utilicen `add_field`.
-    - [x] Mejorar la lógica de ubicación del TOC automático.
+    - [x] Crear la función `add_field` para XML.
+    - [x] Refactorizar pie de foto, pie de tabla y referencias.
+    - [x] Mejorar la ubicación del TOC.
 - [x] **Task 2: Modificar `server.py`**
-    - [x] Añadir el endpoint `GET /api/config`.
-    - [x] Actualizar el parámetro `body_font` por defecto a "Aptos".
+    - [x] Endpoint GET /api/config.
 - [x] **Task 3: Modificar `templates/index.html`**
-    - [x] Establecer el valor por defecto del selector `body-font` a "Aptos".
+    - [x] Valor por defecto a Aptos.
 - [x] **Task 4: Modificar `static/app.js`**
-    - [x] Implementar la función `loadConfig()` para poblar la UI al iniciar.
+    - [x] Carga de config al iniciar.
 - [x] **Task 5: Verificar cambios**
-    - [x] Ejecutar pruebas unitarias.
-    - [x] Levantar el servidor y realizar verificación manual de la interfaz y conversión.
+    - [x] Pruebas unitarias.
 - [x] **Task 6: Configuración del Entorno en IDE**
-    - [x] Configurar rutas relativas y exclusiones en `.vscode/settings.json` para corregir el error de detección de python.exe de Antigravity.
+    - [x] Configurar exclusiones de venv.
+- [x] **Task 7: Servidor MCP (Model Context Protocol)**
+    - [x] Agregar `fastmcp>=0.1.0` a `requirements.txt`.
+    - [x] Crear `mcp_server.py` con FastMCP.
+    - [x] Implementar la herramienta `convert_markdown_to_docx` que exponga la lógica de conversión a los LLM.
+- [x] **Task 8: GitHub Action**
+    - [x] Crear `action.yml` como acción compuesta de GitHub.
+    - [x] Configurar las entradas (`source`, `output`, `config`) y salidas de la acción.
+- [x] **Task 9: Documentación y Verificación**
+    - [x] Actualizar `README.md` con instrucciones de configuración de MCP (Cursor/Claude Desktop) y GitHub Actions.
+    - [x] Ejecutar pruebas locales y verificar el servidor MCP con el inspector de MCP.
 
 ---
 
 ## 📸 Snapshot de Contexto (Próximo Paso)
-- **Versión Liberada:** `v1.0.0` (Versión inicial estable con interfaz gráfica web local, personalización de alineación del texto normal, campos dinámicos nativos de Word en español, corrección de dependencias y exclusión de temporales).
-- **Siguiente Objetivo:** Optimizar el rendimiento de la conversión para archivos masivos y agregar soporte para estilos de tablas personalizados avanzados en el backend.
+- **Versión Liberada:** `v1.1.0` (Pendiente de commit y tag)
+- **Siguiente Objetivo:** Obtener confirmación del título del commit por parte del usuario para proceder a la entrega formal (/ship) en Git y versionado semántico.

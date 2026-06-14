@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.1.0] — 2026-06-14
+
+### Added
+- **Servidor MCP (Model Context Protocol):** Añadido `mcp_server.py` utilizando FastMCP para exponer la conversión a agentes de IA como Cursor, Windsurf y Claude Desktop.
+- **GitHub Action:** Acción compuesta de GitHub (`action.yml`) para compilar de forma automática archivos Markdown a Word en flujos de integración continua (CI/CD).
+- **Parámetro de Configuración en CLI:** Soporte para especificar un tercer argumento opcional con la ruta a un archivo JSON de configuración personalizada en `convert_md_to_docx.py`.
+
 ## [1.0.0] — 2026-06-13
 
 ### Added
@@ -52,7 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Interfaz Gráfica Web Local (GUI):** Servidor Flask local con un panel web interactivo en HTML5/CSS/JS con Drag & Drop para convertir múltiples archivos.
 - **Entorno Virtual y Scripts:** Entorno virtual `venv` local y scripts de automatización multiplataforma `start.cmd`/`stop.cmd` y `start.sh`/`stop.sh`.
 
-[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.0.0...HEAD
+[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/davidbuenov/dbv-md2word/compare/v0.2.0...v1.0.0
 [0.2.0]: https://github.com/davidbuenov/dbv-md2word/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/davidbuenov/dbv-md2word/releases/tag/v0.1.1

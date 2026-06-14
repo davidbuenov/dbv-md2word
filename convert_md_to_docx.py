@@ -798,8 +798,8 @@ def create_docx(blocks, output_path, config=None, base_dir=None):
             
     doc.save(output_path)
 
-def load_default_config():
-    """Carga la configuración por defecto desde config.json o retorna fallbacks."""
+def load_default_config(custom_path=None):
+    """Carga la configuración por defecto desde config.json o retorna fallbacks, con soporte opcional de custom_path."""
     default_config = {
         'heading_font': 'Aptos Display',
         'body_font': 'Aptos',
@@ -810,11 +810,18 @@ def load_default_config():
         'numbering_enabled': True,
         'shift_headings': False
     }
-    config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
-    if os.path.exists(config_path):
+    
+    paths_to_load = []
+    base_config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
+    if os.path.exists(base_config_path):
+        paths_to_load.append(base_config_path)
+    if custom_path and os.path.exists(custom_path):
+        paths_to_load.append(custom_path)
+        
+    for p in paths_to_load:
         import json
         try:
-            with open(config_path, 'r', encoding='utf-8') as f:
+            with open(p, 'r', encoding='utf-8') as f:
                 loaded = json.load(f)
                 for k, v in loaded.items():
                     default_config[k] = v
@@ -824,22 +831,30 @@ def load_default_config():
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Uso: python convert_md_to_docx.py <archivo.md> [archivo.docx]")
+        print("Uso: python convert_md_to_docx.py <archivo.md> [archivo.docx] [config.json]")
         sys.exit(1)
         
     src = sys.argv[1]
+    dst = None
+    config_path = None
+    
     if len(sys.argv) >= 3:
         dst = sys.argv[2]
-    else:
+    
+    if len(sys.argv) >= 4:
+        config_path = sys.argv[3]
+        
+    if not dst:
         dst = os.path.splitext(src)[0] + ".docx"
         
     print(f"Analizando {src}...")
     blocks = parse_markdown(src)
     print(f"Generando {dst}...")
     
-    # Configuración por defecto de la CLI tradicional
-    default_config = load_default_config()
+    # Configuración por defecto de la CLI tradicional + custom config si se provee
+    default_config = load_default_config(config_path)
     
     create_docx(blocks, dst, default_config, os.path.dirname(os.path.abspath(src)))
     print("¡Proceso completado exitosamente!")
+
 

@@ -1,0 +1,56 @@
+# =============================================================================
+# dbv-md2word — Conversor personalizable de Markdown a Word (.docx) con interfaz visual local
+# Copyright (c) 2026 David Bueno Vallejo · https://github.com/davidbuenov
+# Licensed under the MIT License. See LICENSE for details.
+# Built with dbv-specs-ops · https://github.com/davidbuenov/dbv-specs-ops
+# =============================================================================
+
+name: 'dbv-md2word Converter'
+description: 'Converts Markdown documents to professional, styled Word (.docx) files with Table of Contents and automatic SEQ numbering'
+author: 'David Bueno Vallejo'
+branding:
+  icon: 'file-text'
+  color: 'blue'
+
+inputs:
+  source:
+    description: 'Path to the input Markdown (.md) file to convert'
+    required: true
+  output:
+    description: 'Path for the output Word (.docx) file (optional)'
+    required: false
+  config:
+    description: 'Path to a custom config JSON file to override styles (optional)'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r ${{ github.action_path }}/requirements.txt
+
+    - name: Convert Markdown to Word
+      shell: bash
+      run: |
+        ARGS=("${{ inputs.source }}")
+        if [ -n "${{ inputs.output }}" ]; then
+          ARGS+=("${{ inputs.output }}")
+        fi
+        if [ -n "${{ inputs.config }}" ]; then
+          # If output was not specified but config was, we must pass a default output path
+          if [ -z "${{ inputs.output }}" ]; then
+            DEFAULT_OUT="${{ inputs.source }}"
+            DEFAULT_OUT="${DEFAULT_OUT%.*}.docx"
+            ARGS+=("$DEFAULT_OUT")
+          fi
+          ARGS+=("${{ inputs.config }}")
+        fi
+        python ${{ github.action_path }}/convert_md_to_docx.py "${ARGS[@]}"
