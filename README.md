@@ -105,34 +105,16 @@ python convert_md_to_docx.py <archivo.md> [archivo_salida.docx] [config.json]
 ### 🤖 Servidor MCP (Model Context Protocol)
 El proyecto incluye un servidor MCP (`mcp_server.py`) que expone la herramienta `convert_markdown_to_docx` a entornos de agentes LLM como **Cursor**, **Windsurf** o **Claude Desktop**. Esto permite que un agente de IA convierta tus archivos Markdown a Word bajo demanda y con estilos premium.
 
-#### Configuración en Claude Desktop
-Añade lo siguiente a tu archivo de configuración de Claude Desktop (`%APPDATA%\Claude\claude_desktop_config.json` en Windows o `~/Library/Application Support/Claude/claude_desktop_config.json` en macOS):
+Para ver las guías de instalación paso a paso en cada IDE o en Claude Desktop, y ejemplos de prompts para dar a la IA, consulta la **[Guía del Servidor MCP](./docs/MCP_SERVER.md)**.
 
-```json
-{
-  "mcpServers": {
-    "dbv-md2word": {
-      "command": "D:/Programacion/github-davidbuenov/dbv-md2word/venv/Scripts/python.exe",
-      "args": [
-        "D:/Programacion/github-davidbuenov/dbv-md2word/mcp_server.py"
-      ]
-    }
-  }
-}
-```
-*(Asegúrate de ajustar las rutas absolutas al ejecutable de python en tu entorno virtual y a mcp_server.py)*.
-
-#### Configuración en Cursor o Windsurf
-Añade un nuevo servidor MCP en los ajustes de tu IDE con los siguientes valores:
-- **Name**: `dbv-md2word`
-- **Type**: `command`
-- **Command**: `D:/Programacion/github-davidbuenov/dbv-md2word/venv/Scripts/python.exe D:/Programacion/github-davidbuenov/dbv-md2word/mcp_server.py`
 
 <a name="usage-github-action"></a>
 ### 🐙 GitHub Action
 Puedes integrar `dbv-md2word` directamente en tus flujos de integración continua (CI/CD) para compilar documentación Markdown a Word automáticamente en cada confirmación de cambios.
 
-Añade un flujo de trabajo a tu repositorio (por ejemplo, `.github/workflows/convert-docs.yml`):
+Para ver detalles avanzados, parámetros de entradas y ejemplos prácticos (múltiples archivos, bucles de compilación masiva, etc.), consulta la **[Guía de Integración con GitHub Actions](./docs/GITHUB_ACTIONS.md)**.
+
+Un ejemplo de flujo de trabajo básico (`.github/workflows/convert-docs.yml`):
 
 ```yaml
 name: Convertir Documentación a Word
@@ -150,11 +132,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Convertir Markdown a Word
-        uses: davidbuenov/dbv-md2word@master  # O usa un tag de versión estable
+        uses: davidbuenov/dbv-md2word@v1.1.1  # Usa la versión estable
         with:
           source: 'README.md'
           output: 'dist/README.docx'
-          config: 'config.json' # Opcional
 
       - name: Subir Documento Word Generado
         uses: actions/upload-artifact@v4
