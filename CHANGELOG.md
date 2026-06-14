@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.1.1] — 2026-06-14
+
+### Fixed
+- **Creación de Carpeta de Destino:** Corrección en `convert_md_to_docx.py` para asegurar que el directorio de salida se cree automáticamente si no existe al guardar el archivo Word. Esto resuelve fallos de ejecución en entornos de CI/CD (como GitHub Actions).
+
+---
+
 ## [1.1.0] — 2026-06-14
 
 ### Added
@@ -59,7 +66,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Interfaz Gráfica Web Local (GUI):** Servidor Flask local con un panel web interactivo en HTML5/CSS/JS con Drag & Drop para convertir múltiples archivos.
 - **Entorno Virtual y Scripts:** Entorno virtual `venv` local y scripts de automatización multiplataforma `start.cmd`/`stop.cmd` y `start.sh`/`stop.sh`.
 
-[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.0...HEAD
+[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/davidbuenov/dbv-md2word/compare/v0.2.0...v1.0.0
 [0.2.0]: https://github.com/davidbuenov/dbv-md2word/compare/v0.1.1...v0.2.0

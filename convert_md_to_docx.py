@@ -796,6 +796,9 @@ def create_docx(blocks, output_path, config=None, base_dir=None):
             spacer.paragraph_format.space_before = Pt(0)
             spacer.paragraph_format.space_after = Pt(8)
             
+    out_dir = os.path.dirname(output_path)
+    if out_dir and not os.path.exists(out_dir):
+        os.makedirs(out_dir, exist_ok=True)
     doc.save(output_path)
 
 def load_default_config(custom_path=None):
