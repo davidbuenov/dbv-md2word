@@ -28,5 +28,5 @@
 ---
 
 ## 📸 Snapshot de Contexto (Próximo Paso)
-- **Versión Liberada:** `v1.1.0` (Pendiente de commit y tag)
-- **Siguiente Objetivo:** Obtener confirmación del título del commit por parte del usuario para proceder a la entrega formal (/ship) en Git y versionado semántico.
+- **Versión Liberada:** `v1.1.1`
+- **Siguiente Objetivo:** La GitHub Action se ha corregido, testeado y publicado como release oficial. Informar al usuario para que verifique la ejecución correcta en GitHub.
