@@ -12,6 +12,7 @@
   - [Línea de Comandos (CLI)](#usage-cli)
   - [Servidor MCP (Model Context Protocol)](#usage-mcp)
   - [GitHub Action](#usage-github-action)
+  - [Habilidades de Agente (Agentic Skills)](#usage-skills)
 - [Cómo parar](#stop)
 - [Estructura del proyecto](#structure)
 - [Changelog](#changelog)
@@ -143,6 +144,12 @@ jobs:
           name: Word-Document
           path: dist/README.docx
 ```
+
+<a name="usage-skills"></a>
+### 🧠 Habilidades de Agente (Agentic Skills)
+El convertidor está empaquetado como un **Agentic Skill** bajo el estándar de herramientas locales de IA. Esto permite que asistentes autónomos (como **Antigravity**) o agentes web (como **Claude Projects** y **Custom GPTs**) reconozcan y ejecuten la conversión de archivos de forma directa en su terminal.
+
+Para ver las guías de integración de la habilidad y cómo usarla en tus propios proyectos de Claude y ChatGPT, consulta la **[Guía de Habilidades de Agente](./docs/AGENTIC_SKILLS.md)**.
 
 > ⚠️ **IMPORTANTE (Actualización de Campos en Word):**  
 > Al abrir los documentos generados, Microsoft Word te preguntará: *"Este documento contiene campos que pueden hacer referencia a otros archivos. ¿Desea actualizar los campos en el documento?"*. Haz clic en **Sí** para que las referencias, el índice (TOC) y los números de figuras se generen correctamente. También puedes forzar la actualización en cualquier momento seleccionando todo (`Ctrl + E`) y presionando `F9`.
