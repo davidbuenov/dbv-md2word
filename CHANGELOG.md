@@ -11,6 +11,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.2.0] — 2026-07-26
+
+### Added
+- **Empaquetado y soporte para `pip install` (PEP 621):** Configurado `pyproject.toml` en la raíz para permitir la instalación directa del proyecto (`pip install .` o editable con `-e .`), así como su instalación remota directa desde GitHub (`pip install git+...`).
+- **Comandos Ejecutables Globales:** Registro de entry points para los comandos `dbv-md2word` (CLI), `dbv-md2word-server` (GUI web FastAPI) y `dbv-md2word-mcp` (servidor MCP).
+- **Nueva guía técnica de IA:** Añadido `docs/AGENTIC_ENGINEERING.md` con pautas de desarrollo de agentes e integraciones.
+
+### Changed
+- **Upgrade del Framework a v2.2.0:** Los archivos del framework de Spec-Driven Development se actualizaron a la versión 2.2.0 y se aislaron de manera limpia dentro de la subcarpeta `dbv-specs-ops/`.
+- **Actualización de Activadores:** Modificados `GEMINI.md`, `CLAUDE.md`, `ANTIGRAVITY.md`, `.windsurfrules` y las instrucciones de Copilot para redirigir a los asistentes a la nueva subcarpeta de control.
+- **Instrucciones en README:** Refactorizada la documentación del proyecto para cubrir los nuevos comandos y estructura de directorios.
+
+### Fixed
+- **Robustez de Codificación (Markdown Parser):** Corregido fallo de decodificación `UnicodeDecodeError` al procesar archivos Markdown con acentos en español guardados en codificación local de Windows (CP1252/ANSI), añadiendo fallbacks ordenados (UTF-8 -> CP1252 -> Latin-1).
+- **Accesibilidad HTML:** Añadidos atributos `aria-label` y `title` a campos interactivos de formulario sin etiqueta en `templates/index.html` para cumplir con las pautas de accesibilidad.
+- **Compatibilidad CSS**: Añadido el prefijo de compatibilidad `-webkit-backdrop-filter` para el efecto blur en `static/style.css`.
+
+---
+
 ## [1.1.1] — 2026-06-14
 
 ### Fixed
@@ -66,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Interfaz Gráfica Web Local (GUI):** Servidor Flask local con un panel web interactivo en HTML5/CSS/JS con Drag & Drop para convertir múltiples archivos.
 - **Entorno Virtual y Scripts:** Entorno virtual `venv` local y scripts de automatización multiplataforma `start.cmd`/`stop.cmd` y `start.sh`/`stop.sh`.
 
-[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.1...HEAD
+[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/davidbuenov/dbv-md2word/compare/v0.2.0...v1.0.0

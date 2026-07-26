@@ -24,9 +24,16 @@
 - [x] **Task 9: Documentación y Verificación**
     - [x] Actualizar `README.md` con instrucciones de configuración de MCP (Cursor/Claude Desktop) y GitHub Actions.
     - [x] Ejecutar pruebas locales y verificar el servidor MCP con el inspector de MCP.
+- [x] **Task 10: Actualizar framework dbv-specs-ops a v2.2.0**
+    - [x] Migrar ficheros de control a la subcarpeta `dbv-specs-ops/`.
+    - [x] Actualizar ficheros de framework descargados (v2.2.0).
+    - [x] Actualizar ficheros de activación en la raíz.
+    - [x] Realizar cambios quirúrgicos en `project.config.md`.
+    - [x] Ejecutar suite de pruebas unitarias.
+    - [x] Generar el Walkthrough de cierre.
 
 ---
 
 ## 📸 Snapshot de Contexto (Próximo Paso)
 - **Versión Liberada:** `v1.1.1`
-- **Siguiente Objetivo:** La GitHub Action se ha corregido, testeado y publicado como release oficial. Informar al usuario para que verifique la ejecución correcta en GitHub.
+- **Siguiente Objetivo:** Ejecutar las pruebas unitarias locales del proyecto para validar que la migración no rompió la aplicación, y luego generar el walkthrough.md para dar por cerrado el hito.

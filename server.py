@@ -180,7 +180,7 @@ async def convert_api(
             pass
         raise HTTPException(status_code=500, detail=f"Error en la conversión: {str(e)}")
 
-if __name__ == '__main__':
+def run_server():
     port = find_free_port()
     url = f"http://127.0.0.1:{port}"
     print(f"Iniciando conversor web local (FastAPI/Uvicorn) en: {url}")
@@ -190,3 +190,6 @@ if __name__ == '__main__':
     
     # Arrancar Uvicorn
     uvicorn.run(app, host="127.0.0.1", port=port, log_level="info")
+
+if __name__ == '__main__':
+    run_server()

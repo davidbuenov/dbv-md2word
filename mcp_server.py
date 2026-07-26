@@ -97,5 +97,8 @@ def convert_markdown_to_docx(
         except Exception:
             pass
 
-if __name__ == "__main__":
+def run_mcp():
     mcp.run()
+
+if __name__ == "__main__":
+    run_mcp()

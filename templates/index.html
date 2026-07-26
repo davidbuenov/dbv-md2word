@@ -61,8 +61,8 @@
                                 <button type="button" class="color-preset" data-color="#EAB308" style="background-color: #EAB308;" title="Ámbar"></button>
                             </div>
                             <div class="custom-color-input">
-                                <input type="color" id="primary-color-picker" value="#1F4E79">
-                                <input type="text" id="primary-color-hex" value="#1F4E79" placeholder="#FFFFFF" maxlength="7">
+                                <input type="color" id="primary-color-picker" value="#1F4E79" aria-label="Selector de color" title="Selector de color">
+                                <input type="text" id="primary-color-hex" value="#1F4E79" placeholder="#FFFFFF" maxlength="7" aria-label="Código hexadecimal de color" title="Código hexadecimal de color">
                             </div>
                         </div>
                     </div>
@@ -132,7 +132,7 @@
                             <span class="toggle-desc">Inserta un índice dinámico al inicio</span>
                         </div>
                         <label class="switch">
-                            <input type="checkbox" id="toc-enabled" checked>
+                            <input type="checkbox" id="toc-enabled" checked aria-label="Activar tabla de contenidos" title="Activar tabla de contenidos">
                             <span class="slider"></span>
                         </label>
                     </div>
@@ -143,7 +143,7 @@
                             <span class="toggle-desc">Campos SEQ y REF para figuras/tablas</span>
                         </div>
                         <label class="switch">
-                            <input type="checkbox" id="numbering-enabled" checked>
+                            <input type="checkbox" id="numbering-enabled" checked aria-label="Activar numeración y referencias cruzadas" title="Activar numeración y referencias cruzadas">
                             <span class="slider"></span>
                         </label>
                     </div>
@@ -154,7 +154,7 @@
                             <span class="toggle-desc">H1 como 'Título' y H2 como 'Título 1'</span>
                         </div>
                         <label class="switch">
-                            <input type="checkbox" id="shift-headings">
+                            <input type="checkbox" id="shift-headings" aria-label="Desplazar niveles de títulos" title="Desplazar niveles de títulos">
                             <span class="slider"></span>
                         </label>
                     </div>
@@ -167,7 +167,7 @@
 
                 <!-- Drag and Drop Area -->
                 <div id="drop-zone" class="drop-zone">
-                    <input type="file" id="file-input" multiple accept=".md,.png,.jpg,.jpeg,.gif" class="hidden-file-input">
+                    <input type="file" id="file-input" multiple accept=".md,.png,.jpg,.jpeg,.gif" class="hidden-file-input" aria-label="Seleccionar archivos" title="Seleccionar archivos">
                     <div class="drop-zone-content">
                         <i class="fa-solid fa-file-lines drop-icon"></i>
                         <h3>Arrastra tus archivos aquí</h3>
@@ -220,7 +220,7 @@
         <!-- Footer -->
         <footer class="app-footer">
             <p>Creado por <strong>David Bueno Vallejo</strong> en colaboración con <strong>Antigravity</strong> · Licencia MIT</p>
-            <p class="framework-tag">Desarrollado bajo metodología SDD con dbv-specs-ops v1.5.2</p>
+            <p class="framework-tag">Desarrollado bajo metodología SDD con dbv-specs-ops v2.2.0</p>
         </footer>
     </div>
 

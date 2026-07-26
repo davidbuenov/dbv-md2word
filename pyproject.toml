@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dbv-md2word"
+version = "1.1.1"
+description = "Conversor personalizable de Markdown a Word (.docx) con interfaz visual local"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    { name = "David Bueno Vallejo", email = "davidbuenov@github.com" }
+]
+license = { text = "MIT" }
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "python-docx>=1.2.0",
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "python-multipart>=0.0.6",
+    "werkzeug>=2.0.0",
+    "fastmcp>=0.1.0"
+]
+
+[project.scripts]
+dbv-md2word = "convert_md_to_docx:run_cli"
+dbv-md2word-server = "server:run_server"
+dbv-md2word-mcp = "mcp_server:run_mcp"
+
+[tool.setuptools]
+py-modules = ["convert_md_to_docx", "server", "mcp_server"]

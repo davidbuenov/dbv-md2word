@@ -4,17 +4,17 @@ Este proyecto sigue la metodología **Spec-Driven Development (SDD)**. Lee estos
 
 | Archivo | Propósito |
 | --- | --- |
-| `project.config.md` | Identidad del proyecto: nombre, autor, licencia y plantilla de cabeceras |
-| `docs/MASTER_PROMPT.md` | Workflow obligatorio, normas y límites |
-| `docs/SPECIFICATIONS.md` | Requisitos del proyecto actual |
-| `docs/ARCHITECTURE.md` | Stack y decisiones técnicas |
-| `docs/DESIGN.md` | Sistema de diseño visual: tokens de color, tipografía, componentes y filosofía *(si existe)* |
-| `memory.md` | **Contexto y Decisiones:** Conocimiento cualitativo (ADRs, lecciones, mapa) |
-| `task.md` | Estado actual + Snapshot de Contexto |
+| `dbv-specs-ops/project.config.md` | Identidad del proyecto: nombre, autor, licencia y plantilla de cabeceras |
+| `dbv-specs-ops/docs/MASTER_PROMPT.md` | Workflow obligatorio, normas y límites |
+| `dbv-specs-ops/docs/SPECIFICATIONS.md` | Requisitos del proyecto actual |
+| `dbv-specs-ops/docs/ARCHITECTURE.md` | Stack y decisiones técnicas |
+| `dbv-specs-ops/docs/DESIGN.md` | Sistema de diseño visual: tokens de color, tipografía, componentes y filosofía *(si existe)* |
+| `dbv-specs-ops/memory.md` | **Contexto y Decisiones:** Conocimiento cualitativo (ADRs, lecciones, mapa) |
+| `dbv-specs-ops/task.md` | Estado actual + Snapshot de Contexto |
 
 ## ⚠️ Reglas Core (Puntero Fuerte)
 
-**Lee `docs/MASTER_PROMPT.md` y sigue su flujo de trabajo estrictamente. Si detectas contradicciones entre el prompt y las especificaciones del proyecto, detente e informa antes de proceder.**
+**Lee `dbv-specs-ops/docs/MASTER_PROMPT.md` y sigue su flujo de trabajo estrictamente. Si detectas contradicciones entre el prompt y las especificaciones del proyecto, detente e informa antes de proceder.**
 Toda la lógica de inicialización (Bootstrap), comprobación de estado (Specs Check), ciclo de vida (Workflow) y estándares de código están definidos centralizadamente allí para evitar redundancia cognitiva.
 
 

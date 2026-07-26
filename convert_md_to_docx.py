@@ -394,8 +394,16 @@ def parse_markdown(filepath):
         print(f"Error: El archivo {filepath} no existe.")
         sys.exit(1)
         
-    with open(filepath, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+    except UnicodeDecodeError:
+        try:
+            with open(filepath, 'r', encoding='cp1252') as f:
+                lines = f.readlines()
+        except UnicodeDecodeError:
+            with open(filepath, 'r', encoding='latin-1') as f:
+                lines = f.readlines()
         
     blocks = []
     current_block = None
@@ -832,7 +840,7 @@ def load_default_config(custom_path=None):
             pass
     return default_config
 
-if __name__ == '__main__':
+def run_cli():
     if len(sys.argv) < 2:
         print("Uso: python convert_md_to_docx.py <archivo.md> [archivo.docx] [config.json]")
         sys.exit(1)
@@ -859,5 +867,8 @@ if __name__ == '__main__':
     
     create_docx(blocks, dst, default_config, os.path.dirname(os.path.abspath(src)))
     print("¡Proceso completado exitosamente!")
+
+if __name__ == '__main__':
+    run_cli()
 
 

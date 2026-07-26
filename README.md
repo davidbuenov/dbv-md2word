@@ -48,22 +48,31 @@ La herramienta incluye una **interfaz web local interactiva** que permite config
 <a name="installation"></a>
 ## ⚙️ Instalación
 
-El proceso de instalación de dependencias está completamente automatizado y se realiza mediante el script de arranque inteligente (`start.cmd` o `start.sh`). La primera vez que lo ejecutes, creará el entorno virtual e instalará todo de forma automática. En las siguientes ejecuciones, se saltará este paso para arrancar la aplicación de forma instantánea.
+### Método Recomendado (Scripts de Arranque Rápido)
+El proceso de instalación de dependencias está completamente automatizado y se realiza mediante el script de arranque inteligente (`start.cmd` o `start.sh`). La primera vez que lo ejecutes, creará el entorno virtual e instalará todo de forma automática.
 
-No obstante, si deseas realizar una instalación manual en tu entorno local:
+### Método Avanzado (Instalación de Paquete Local)
+Al cumplir con el estándar PEP 621, puedes instalar el proyecto de forma local y editable en tu sistema para registrar los ejecutables globales:
 
 ```bash
-# 1. Crear el entorno virtual
+# 1. Crear y activar el entorno virtual
 python -m venv venv
-
-# 2. Activar el entorno virtual
-# En Windows:
+# Windows:
 venv\Scripts\activate
-# En macOS / Linux:
+# macOS / Linux:
 source venv/bin/activate
 
-# 3. Instalar dependencias
-pip install -r requirements.txt
+# 2. Instalar el proyecto en modo editable
+pip install -e .
+```
+
+Esto instalará automáticamente todas las dependencias y registrará los comandos `dbv-md2word`, `dbv-md2word-server` y `dbv-md2word-mcp` en tu terminal.
+
+### Instalación desde Repositorio (Git / GitHub)
+Cualquier usuario puede instalar la aplicación y registrar los ejecutables globales directamente desde el repositorio remoto con un único comando:
+
+```bash
+pip install git+https://github.com/davidbuenov/dbv-md2word.git
 ```
 
 ---
@@ -93,12 +102,20 @@ Una vez iniciado el servidor, la aplicación abrirá automáticamente tu navegad
 
 <a name="usage-cli"></a>
 ### 📝 Línea de Comandos (CLI)
-Si prefieres no usar la interfaz web, puedes realizar conversiones directamente desde la consola:
+Si prefieres no usar la interfaz web, puedes realizar conversiones directamente desde la consola.
+
+**Opción A (Comando Global de Pip):**
+Si instalaste el proyecto localmente mediante `pip install -e .`, puedes llamar al comando global directamente desde cualquier ubicación:
+```bash
+dbv-md2word <archivo.md> [archivo_salida.docx] [config.json]
+```
+
+**Opción B (Ejecución Tradicional de Python):**
 ```bash
 # Activa el entorno virtual
 venv\Scripts\activate
 
-# Ejecuta el convertidor tradicional (usará fuentes y colores por defecto)
+# Ejecuta el convertidor tradicional
 python convert_md_to_docx.py <archivo.md> [archivo_salida.docx] [config.json]
 ```
 
@@ -106,14 +123,14 @@ python convert_md_to_docx.py <archivo.md> [archivo_salida.docx] [config.json]
 ### 🤖 Servidor MCP (Model Context Protocol)
 El proyecto incluye un servidor MCP (`mcp_server.py`) que expone la herramienta `convert_markdown_to_docx` a entornos de agentes LLM como **Cursor**, **Windsurf** o **Claude Desktop**. Esto permite que un agente de IA convierta tus archivos Markdown a Word bajo demanda y con estilos premium.
 
-Para ver las guías de instalación paso a paso en cada IDE o en Claude Desktop, y ejemplos de prompts para dar a la IA, consulta la **[Guía del Servidor MCP](./docs/MCP_SERVER.md)**.
+Si instalaste el paquete vía pip, puedes configurar tu cliente MCP para que apunte directamente al ejecutable registrado `dbv-md2word-mcp`. Para ver las guías de instalación paso a paso en cada IDE o en Claude Desktop, consulta la **[Guía del Servidor MCP](./dbv-specs-ops/docs/MCP_SERVER.md)**.
 
 
 <a name="usage-github-action"></a>
 ### 🐙 GitHub Action
 Puedes integrar `dbv-md2word` directamente en tus flujos de integración continua (CI/CD) para compilar documentación Markdown a Word automáticamente en cada confirmación de cambios.
 
-Para ver detalles avanzados, parámetros de entradas y ejemplos prácticos (múltiples archivos, bucles de compilación masiva, etc.), consulta la **[Guía de Integración con GitHub Actions](./docs/GITHUB_ACTIONS.md)**.
+Para ver detalles avanzados, parámetros de entradas y ejemplos prácticos (múltiples archivos, bucles de compilación masiva, etc.), consulta la **[Guía de Integración con GitHub Actions](./dbv-specs-ops/docs/GITHUB_ACTIONS.md)**.
 
 Un ejemplo de flujo de trabajo básico (`.github/workflows/convert-docs.yml`):
 
@@ -149,7 +166,7 @@ jobs:
 ### 🧠 Habilidades de Agente (Agentic Skills)
 El convertidor está empaquetado como un **Agentic Skill** bajo el estándar de herramientas locales de IA. Esto permite que asistentes autónomos (como **Antigravity**) o agentes web (como **Claude Projects** y **Custom GPTs**) reconozcan y ejecuten la conversión de archivos de forma directa en su terminal.
 
-Para ver las guías de integración de la habilidad y cómo usarla en tus propios proyectos de Claude y ChatGPT, consulta la **[Guía de Habilidades de Agente](./docs/AGENTIC_SKILLS.md)**.
+Para ver las guías de integración de la habilidad y cómo usarla en tus propios proyectos de Claude y ChatGPT, consulta la **[Guía de Habilidades de Agente](./dbv-specs-ops/docs/AGENTIC_SKILLS.md)**.
 
 > ⚠️ **IMPORTANTE (Actualización de Campos en Word):**  
 > Al abrir los documentos generados, Microsoft Word te preguntará: *"Este documento contiene campos que pueden hacer referencia a otros archivos. ¿Desea actualizar los campos en el documento?"*. Haz clic en **Sí** para que las referencias, el índice (TOC) y los números de figuras se generen correctamente. También puedes forzar la actualización en cualquier momento seleccionando todo (`Ctrl + E`) y presionando `F9`.
@@ -180,10 +197,14 @@ chmod +x stop.sh
 
 ```text
 dbv-md2word/
-├── docs/                        # Documentación del diseño y especificaciones (SDD)
-│   ├── ARCHITECTURE.md          # Arquitectura técnica y stack
-│   ├── DESIGN.md                # Sistema de diseño y estilos visuales
-│   └── SPECIFICATIONS.md        # Especificaciones funcionales
+├── dbv-specs-ops/               # Carpeta del framework de desarrollo SDD
+│   ├── docs/                    # Documentación de diseño y especificaciones
+│   │   ├── ARCHITECTURE.md      # Arquitectura técnica y stack de la app
+│   │   ├── DESIGN.md            # Sistema de diseño y estilos visuales
+│   │   └── SPECIFICATIONS.md    # Especificaciones funcionales de la app
+│   ├── project.config.md        # Identidad del proyecto y metadatos del framework
+│   ├── memory.md                # Registro de decisiones y lecciones aprendidas
+│   └── task.md                  # Registro y checklist de tareas actuales
 ├── static/                      # Recursos estáticos de la interfaz web
 │   ├── app.js                   # Lógica frontend (Drag & Drop, API)
 │   └── style.css                # Estética visual y Glassmorphism
@@ -193,11 +214,12 @@ dbv-md2word/
 │   └── test_converter.py        # Validación de estilos y XML
 ├── convert_md_to_docx.py        # Módulo de conversión de Markdown a Word
 ├── server.py                    # Servidor FastAPI local y API de conversión
+├── mcp_server.py                # Servidor Model Context Protocol
 ├── requirements.txt             # Dependencias del proyecto
-├── start.cmd / start.sh         # Scripts de arranque automatizado
+├── pyproject.toml               # Configuración de empaquetado (PEP 621)
+├── start.cmd / start.sh         # Scripts de arranque rápido automatizado
 ├── stop.cmd / stop.sh           # Scripts de parada de la aplicación
 ├── config.json                  # Opciones de estilo globales por defecto
-├── project.config.md            # Identidad del proyecto y plantillas de cabecera
 ├── CHANGELOG.md                 # Historial de versiones y cambios
 └── README.md                    # Este archivo
 ```
