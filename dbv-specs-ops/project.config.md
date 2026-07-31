@@ -12,7 +12,7 @@
 - **License:** MIT
 - **Languages:** Python, HTML, CSS, JavaScript
 - **Agent Readiness (Web):** Yes
-- **Framework Version:** 2.2.0
+- **Framework Version:** 2.3.0
 
 ---
 

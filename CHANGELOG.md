@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.3.0] — 2026-07-31
+
+### Added
+- **Aislamiento y soporte de fuente para Emojis:** Se dividen los fragmentos de texto (runs) en MS Word para aislar caracteres Unicode de tipo emoji y aplicarles una fuente de emojis específica (por defecto "Segoe UI Emoji"), configurable en `config.json` o mediante parámetros en la API y MCP. Esto soluciona que los emojis (✅, ❌, etc.) se renderizaran como cuadros vacíos al usar fuentes corporativas que no disponen de sus glifos (como Aptos).
+
+### Changed
+- **Upgrade del Framework a v2.3.0:** Se actualizaron los archivos del framework `dbv-specs-ops` a la última versión 2.3.0 para soporte de guías de diseño visual avanzadas (`docs/DESIGN_ENRICHMENT.md`).
+
+### Fixed
+- **Falsos positivos de enlaces en Markdown:** Se corrigió un error en `add_runs_to_paragraph` que confundía cualquier fragmento de texto delimitado por corchetes y paréntesis (como "[Sí] Activo (pasivo)") con un enlace markdown real, perdiendo texto en el proceso. Ahora se exige estrictamente la adyacencia de los caracteres `](` para tratarlos como enlaces.
+
+---
+
 ## [1.2.0] — 2026-07-26
 
 ### Added
@@ -85,7 +98,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Interfaz Gráfica Web Local (GUI):** Servidor Flask local con un panel web interactivo en HTML5/CSS/JS con Drag & Drop para convertir múltiples archivos.
 - **Entorno Virtual y Scripts:** Entorno virtual `venv` local y scripts de automatización multiplataforma `start.cmd`/`stop.cmd` y `start.sh`/`stop.sh`.
 
-[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.2.0...HEAD
+[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.0.0...v1.1.0

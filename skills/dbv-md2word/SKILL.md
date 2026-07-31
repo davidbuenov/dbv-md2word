@@ -1,5 +1,6 @@
 ---
 name: dbv-md2word
+version: 1.3.0
 description: Converts Markdown files (.md) into professionally styled Word documents (.docx) using native styles (Spanish), automatic table of contents, SEQ image/table numbering, and dynamic REF cross-references.
 category: Document Automation
 inputs:
@@ -17,9 +18,9 @@ inputs:
     required: false
 ---
 
-# Skill: dbv-md2word Converter
+# Skill: dbv-md2word Converter (v1.3.0)
 
-Este Skill permite a los agentes autónomos de IA de Antigravity/VS Code convertir de forma directa archivos Markdown (`.md`) a documentos profesionales de Microsoft Word (`.docx`) aplicando estilos corporativos y formateo OpenXML estructurado.
+Este Skill (v1.3.0) permite a los agentes autónomos de IA de Antigravity/VS Code convertir de forma directa archivos Markdown (`.md`) a documentos profesionales de Microsoft Word (`.docx`) aplicando estilos corporativos y formateo OpenXML estructurado.
 
 ## 🛠️ Instrucciones para el Agente
 

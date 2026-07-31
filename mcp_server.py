@@ -20,6 +20,7 @@ def convert_markdown_to_docx(
     heading_font: str = None,
     body_font: str = None,
     code_font: str = None,
+    emoji_font: str = None,
     body_align: str = None,
     primary_color: str = None,
     toc_enabled: bool = None,
@@ -34,6 +35,7 @@ def convert_markdown_to_docx(
         heading_font: Optional font name for headings (e.g. 'Aptos Display', 'Arial', 'Georgia').
         body_font: Optional font name for body text (e.g. 'Aptos', 'Calibri', 'Arial').
         code_font: Optional font name for code blocks and inline code (e.g. 'Consolas', 'Courier New').
+        emoji_font: Optional font name for emojis (e.g. 'Segoe UI Emoji', 'Apple Color Emoji').
         body_align: Optional body text alignment ('justify' or 'left').
         primary_color: Optional primary color hex code (e.g. '#1F4E79').
         toc_enabled: Optional flag to enable or disable the Table of Contents at the beginning.
@@ -50,6 +52,8 @@ def convert_markdown_to_docx(
         config['body_font'] = body_font
     if code_font is not None:
         config['code_font'] = code_font
+    if emoji_font is not None:
+        config['emoji_font'] = emoji_font
     if body_align is not None:
         config['body_align'] = body_align
     if primary_color is not None:

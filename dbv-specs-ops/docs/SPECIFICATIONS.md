@@ -42,6 +42,7 @@
 - **Enfoque:** Servidor local FastAPI (Uvicorn) en Python 3 para el backend y panel en HTML/CSS/JS con Vanilla CSS.
 - **Dependencias Críticas:** `python-docx` para manipulación de archivos Word XML, `fastapi` y `uvicorn` para el servidor web local.
 - **Sistema de Diseño:** Ver `docs/DESIGN.md` para el estilo visual premium (oscuro/claro, transiciones fluidas, tipografía Outfit/Inter).
+- **Auditoría Visual y Enriquecimiento:** Ver `docs/DESIGN_ENRICHMENT.md` para guías de enriquecimiento visual y herramientas de auditoría aplicables.
 
 ## 🚫 5. Fuera de Alcance (Out of Scope)
 

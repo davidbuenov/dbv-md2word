@@ -32,8 +32,18 @@
     - [x] Ejecutar suite de pruebas unitarias.
     - [x] Generar el Walkthrough de cierre.
 
+- [x] **Task 11: Corrección de Emojis, Links y Framework v2.3.0**
+    - [x] Descargar y actualizar todos los ficheros del framework a v2.3.0.
+    - [x] Actualizar `project.config.md` y `SPECIFICATIONS.md` con referencias de v2.3.0.
+    - [x] Aplicar parches de emojis y detección de enlaces en `convert_md_to_docx.py` y `config.json`.
+    - [x] Propagar cambios a `server.py` y `mcp_server.py`.
+    - [x] Sincronizar la carpeta `skills/dbv-md2word/` con el nuevo motor y recursos.
+    - [x] Agregar tests para emojis y falsos positivos de enlaces en `tests/test_converter.py`.
+    - [x] Validar con la suite de pruebas unitarias.
+    - [x] Generar el `walkthrough.md` y registrar en el `CHANGELOG.md`.
+
 ---
 
 ## 📸 Snapshot de Contexto (Próximo Paso)
 - **Versión Liberada:** `v1.1.1`
-- **Siguiente Objetivo:** Ejecutar las pruebas unitarias locales del proyecto para validar que la migración no rompió la aplicación, y luego generar el walkthrough.md para dar por cerrado el hito.
+- **Siguiente Objetivo:** Generar el `walkthrough.md`, actualizar el `CHANGELOG.md` para preparar el cierre de la entrega y consultar con el usuario sobre el incremento de versión.

@@ -21,11 +21,16 @@
 - **2026-06-14 - Integración de Servidor MCP via FastMCP:** Implementación de un punto de acceso MCP en `mcp_server.py` utilizando FastMCP para dar soporte nativo a agentes de IA. Se identificó que `FastMCP` no acepta el keyword argument `description` en su inicializador en la versión actual.
 - **2026-06-14 - Acción Compuesta en Lugar de Docker:** Uso de un GitHub Composite Runner en `action.yml` para evitar el retraso de compilación de Docker y dar soporte multiplataforma nativo a runners Windows, macOS y Linux.
 - **2026-06-14 - Pasaje Seguro de Argumentos Opcionales en CI:** Construcción de arrays de argumentos condicionales en bash (`ARGS`) para evitar enviar strings vacías a `convert_md_to_docx.py`.
+- **2026-07-31 - Fuente Dedicada de Emoji (Segoe UI Emoji) y Tratamiento de Fallback:** Implementación de división de runs para aislar caracteres de emoji aplicando una fuente compatible con colores (como "Segoe UI Emoji"). Se reconoce que es Windows-céntrico por defecto y se permite su personalización o desactivación (cadena vacía) en config.json.
+
 
 ## ⚠️ Lecciones Aprendidas / Errores Evitados
 
 - **Campos dinámicos no evaluados por defecto en python-docx:** python-docx no contiene un motor de layout para evaluar el valor de los campos SEQ o de la Tabla de Contenidos (TOC). El documento generado contiene solo los campos XML. Microsoft Word se encargará de evaluarlos y numerarlos al abrir el documento y aceptar la actualización, o forzando la actualización con `Ctrl + E` + `F9`. Esto debe explicarse en la interfaz web y el README para evitar falsos reportes de error por parte del usuario.
 - **Incompatibilidades del IDE con la variable `${workspaceFolder}` y el directorio `venv/`:** En Windows, el uso de `${workspaceFolder}` mezclado con barras normales en `"python.defaultInterpreterPath"` a menudo resulta en rutas que los servicios e indexadores de extensiones de VS Code o Antigravity no pueden manejar. Configurar rutas relativas y añadir la carpeta `venv/` a las directivas de exclusión de búsqueda y archivos evita que el IDE indexe ejecutables binarios y lance alertas de error de manejo de archivos.
+- **Fallbacks automáticos de fuentes en Word frente a w:rFonts explícito:** Si un run de Word declara explícitamente una fuente (ej. w:rFonts con w:ascii="Aptos"), Word desactiva el fallback automático para emojis si esa fuente no los contiene, mostrando cuadrados vacíos. Dividir los runs en caliente y aplicar "Segoe UI Emoji" únicamente al tramo de caracteres emoji soluciona este comportamiento.
+- **Validación robusta de sintaxis Markdown:** El parseo de enlaces markdown usando búsquedas de subcadenas sueltas con "in" (ej. '[' y '(' en el texto) produce falsos positivos destructivos en textos cotidianos como "[Sí] Activo (pasivo)". Es obligatorio el uso de delimitación estricta y adyacencia real "]" + "(" junto con expresiones regulares ancladas para aislar el enlace real.
+
 
 ## 🗺️ Mapa de Relaciones
 

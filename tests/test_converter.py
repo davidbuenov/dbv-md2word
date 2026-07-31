@@ -184,6 +184,42 @@ class TestConverter(unittest.TestCase):
             if os.path.exists(temp_out_path):
                 os.remove(temp_out_path)
 
+    def test_link_detection_falso_positivo(self):
+        """Prueba que un texto como '[Sí] Activo (pasivo)' no se considere un enlace markdown."""
+        from convert_md_to_docx import add_runs_to_paragraph, ConversionState
+        doc = Document()
+        p = doc.add_paragraph()
+        state = ConversionState()
+        config = {'body_font': 'Calibri'}
+        add_runs_to_paragraph(p, "[Sí] Activo (pasivo)", config, state)
+        
+        # Comprobamos que mantiene el texto íntegro en lugar de perder partes
+        self.assertEqual(p.text, "[Sí] Activo (pasivo)")
+
+    def test_emoji_font_splitting(self):
+        """Prueba que los emojis se aíslen en sub-runs con la fuente de emojis adecuada."""
+        from convert_md_to_docx import apply_emoji_font
+        doc = Document()
+        p = doc.add_paragraph()
+        run = p.add_run("Texto ✅ normal 🧟")
+        run.font.name = "Aptos"
+        
+        apply_emoji_font(doc, "Segoe UI Emoji")
+        
+        # Deben haber 4 runs tras la separación por emojis
+        self.assertEqual(len(p.runs), 4)
+        self.assertEqual(p.runs[0].text, "Texto ")
+        self.assertEqual(p.runs[0].font.name, "Aptos")
+        
+        self.assertEqual(p.runs[1].text, "✅")
+        self.assertEqual(p.runs[1].font.name, "Segoe UI Emoji")
+        
+        self.assertEqual(p.runs[2].text, " normal ")
+        self.assertEqual(p.runs[2].font.name, "Aptos")
+        
+        self.assertEqual(p.runs[3].text, "🧟")
+        self.assertEqual(p.runs[3].font.name, "Segoe UI Emoji")
+
 if __name__ == '__main__':
     unittest.main()
 
