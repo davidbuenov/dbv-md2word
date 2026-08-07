@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "dbv-md2word-plugin",
+  "version": "1.0.0",
+  "description": "Ported skills and tools plugin for dbv-md2word — conversion of Markdown to professionally styled Word (.docx) documents",
+  "author": {
+    "name": "David Bueno Vallejo",
+    "url": "https://github.com/davidbuenov"
+  },
+  "homepage": "https://github.com/davidbuenov/dbv-md2word",
+  "repository": "https://github.com/davidbuenov/dbv-md2word",
+  "license": "MIT",
+  "keywords": ["markdown", "docx", "word", "document-automation"]
+}

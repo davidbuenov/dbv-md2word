@@ -22,6 +22,8 @@
 - **2026-06-14 - Acción Compuesta en Lugar de Docker:** Uso de un GitHub Composite Runner en `action.yml` para evitar el retraso de compilación de Docker y dar soporte multiplataforma nativo a runners Windows, macOS y Linux.
 - **2026-06-14 - Pasaje Seguro de Argumentos Opcionales en CI:** Construcción de arrays de argumentos condicionales en bash (`ARGS`) para evitar enviar strings vacías a `convert_md_to_docx.py`.
 - **2026-07-31 - Fuente Dedicada de Emoji (Segoe UI Emoji) y Tratamiento de Fallback:** Implementación de división de runs para aislar caracteres de emoji aplicando una fuente compatible con colores (como "Segoe UI Emoji"). Se reconoce que es Windows-céntrico por defecto y se permite su personalización o desactivación (cadena vacía) en config.json.
+- **2026-08-07 - Migración a Agent Plugins 1.0.0 con rutas relativas a PLUGIN_ROOT:** El servidor MCP y el Skill se empaquetaron en `.well-known/agent-plugin/`, pero `mcp_server.py` y el `venv` permanecen en la raíz del proyecto (no están embebidos en el plugin). Como este proyecto usa un único `venv` local fijo (no un runtime aprovisionado por el cliente de IA vía `${PLUGIN_DATA}`), `mcp.json` referencia el servidor y el intérprete con rutas relativas ascendentes desde `${PLUGIN_ROOT}` (`../../mcp_server.py`) en vez de usar `${PLUGIN_DATA}`, que se reserva para dependencias que el propio cliente de IA aprovisiona.
+- **2026-08-07 - Framework dbv-specs-ops actualizado a v2.4.0:** `SPECIFICATIONS.md` y `ARCHITECTURE.md`, pese a estar protegidos por la regla crítica de `UPGRADE_PROMPT.md` frente a sobreescrituras automáticas, sí se editaron de forma quirúrgica porque el usuario lo pidió explícitamente para mantener consistencia con la migración a Agent Plugins.
 
 
 ## ⚠️ Lecciones Aprendidas / Errores Evitados
@@ -30,6 +32,7 @@
 - **Incompatibilidades del IDE con la variable `${workspaceFolder}` y el directorio `venv/`:** En Windows, el uso de `${workspaceFolder}` mezclado con barras normales en `"python.defaultInterpreterPath"` a menudo resulta en rutas que los servicios e indexadores de extensiones de VS Code o Antigravity no pueden manejar. Configurar rutas relativas y añadir la carpeta `venv/` a las directivas de exclusión de búsqueda y archivos evita que el IDE indexe ejecutables binarios y lance alertas de error de manejo de archivos.
 - **Fallbacks automáticos de fuentes en Word frente a w:rFonts explícito:** Si un run de Word declara explícitamente una fuente (ej. w:rFonts con w:ascii="Aptos"), Word desactiva el fallback automático para emojis si esa fuente no los contiene, mostrando cuadrados vacíos. Dividir los runs en caliente y aplicar "Segoe UI Emoji" únicamente al tramo de caracteres emoji soluciona este comportamiento.
 - **Validación robusta de sintaxis Markdown:** El parseo de enlaces markdown usando búsquedas de subcadenas sueltas con "in" (ej. '[' y '(' en el texto) produce falsos positivos destructivos en textos cotidianos como "[Sí] Activo (pasivo)". Es obligatorio el uso de delimitación estricta y adyacencia real "]" + "(" junto con expresiones regulares ancladas para aislar el enlace real.
+- **Grep de referencias cruzadas antes de mover carpetas documentadas:** Mover una carpeta `skills/` referenciada por rutas relativas/absolutas en varios documentos (`README.md`, `docs/AGENTIC_SKILLS.md`, `docs/MCP_SERVER.md`) rompe esos enlaces si no se hace un grep previo de todas las menciones a la ruta antigua. Antes de reestructurar directorios de un proyecto con documentación SDD extensa, buscar todas las referencias cruzadas primero.
 
 
 ## 🗺️ Mapa de Relaciones
@@ -37,6 +40,7 @@
 - `server.py` → Servidor local FastAPI, gestiona la API `/api/convert` y sirve los archivos del frontend (`templates/index.html` y estáticos en `static/`). Depende de `convert_md_to_docx.py`.
 - `convert_md_to_docx.py` → Módulo principal de conversión de Markdown a DOCX. Parsea bloques y textos e interactúa con `python-docx` para inyectar estilos y campos XML nativos.
 - `static/app.js` → Orquesta el Drag & Drop, recolecta las configuraciones de estilos de la interfaz y hace fetch al backend para descargar el resultado.
+- `.well-known/agent-plugin/` → Empaquetado Agent Plugin 1.0.0 del proyecto (`plugin.json`, `mcp.json`, `skills/dbv-md2word/`). `mcp.json` referencia `mcp_server.py` y el `venv` de la raíz vía rutas relativas a `${PLUGIN_ROOT}`, no vía `${PLUGIN_DATA}`.
 
 ---
 

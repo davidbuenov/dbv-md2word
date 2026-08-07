@@ -42,8 +42,19 @@
     - [x] Validar con la suite de pruebas unitarias.
     - [x] Generar el `walkthrough.md` y registrar en el `CHANGELOG.md`.
 
+- [x] **Task 12: Actualización del framework a v2.4.0 y migración a Agent Plugins 1.0.0**
+    - [x] Descargar y actualizar `docs/MASTER_PROMPT.md` y `docs/UPGRADE_PROMPT.md` a v2.4.0.
+    - [x] Crear `docs/AGENT_PLUGINS.md` (nuevo) con la guía del estándar.
+    - [x] Actualizar `project.config.md` (`Framework Version: 2.4.0`).
+    - [x] Migrar `skills/dbv-md2word/` a `.well-known/agent-plugin/skills/dbv-md2word/` (`git mv`) y crear `plugin.json` + `mcp.json` portables (`${PLUGIN_ROOT}`).
+    - [x] Actualizar `docs/SPECIFICATIONS.md` y `docs/ARCHITECTURE.md` con la interfaz de agentes (Agent Harness).
+    - [x] Corregir rutas obsoletas en `docs/AGENTIC_SKILLS.md` y `docs/MCP_SERVER.md`.
+    - [x] Bump de versión de la app a `v1.4.0` (`pyproject.toml`, `__version__`, `SKILL.md`, README).
+    - [x] Actualizar `CHANGELOG.md` con la entrada `[1.4.0]`.
+    - [x] Generar el `walkthrough.md` de cierre.
+
 ---
 
 ## 📸 Snapshot de Contexto (Próximo Paso)
-- **Versión Liberada:** `v1.1.1`
-- **Siguiente Objetivo:** Generar el `walkthrough.md`, actualizar el `CHANGELOG.md` para preparar el cierre de la entrega y consultar con el usuario sobre el incremento de versión.
+- **Versión Liberada:** `v1.4.0`
+- **Siguiente Objetivo:** Ninguno pendiente de esta entrega. Próximos pasos opcionales sugeridos: (1) revisar si procede implementar la infraestructura completa de Agent Readiness Web (robots.txt, llms.txt, cabeceras `Link`) ya que `project.config.md` tiene `Agent Readiness (Web): Yes` pero la app es 100% local/offline; (2) regenerar `.well-known/agent-plugin/skills/dbv-md2word/dbv-md2word.zip` si se distribuye como artefacto descargable.

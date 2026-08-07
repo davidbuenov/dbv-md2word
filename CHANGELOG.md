@@ -11,6 +11,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.4.0] — 2026-08-07
+
+### Added
+- **Empaquetado Agent Plugin 1.0.0:** El servidor MCP (`mcp_server.py`) y el Agent Skill `dbv-md2word` se exponen ahora de forma portable (sin rutas absolutas de máquina) bajo el estándar universal en `.well-known/agent-plugin/` (`plugin.json` + `mcp.json` con placeholders `${PLUGIN_ROOT}` + `skills/dbv-md2word/`). Ver `docs/AGENT_PLUGINS.md`.
+
+### Changed
+- **Upgrade del Framework a v2.4.0:** Se actualizaron `docs/MASTER_PROMPT.md`, `docs/UPGRADE_PROMPT.md` y se añadió `docs/AGENT_PLUGINS.md` (nuevo) para integrar el estándar Agent Plugins 1.0.0 en el flujo SDD.
+- **Migración de la carpeta `skills/dbv-md2word/`:** Movida a `.well-known/agent-plugin/skills/dbv-md2word/`, eliminando la carpeta antigua en la raíz. Documentación (`README.md`, `docs/AGENTIC_SKILLS.md`, `docs/MCP_SERVER.md`) actualizada para reflejar la nueva ruta.
+- **Consistencia de especificaciones:** `docs/SPECIFICATIONS.md` y `docs/ARCHITECTURE.md` actualizados con la interfaz de agentes de IA (MCP + Agent Plugin) y una nueva sección de Agent Harness.
+
+---
+
 ## [1.3.0] — 2026-07-31
 
 ### Added
@@ -98,7 +110,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Interfaz Gráfica Web Local (GUI):** Servidor Flask local con un panel web interactivo en HTML5/CSS/JS con Drag & Drop para convertir múltiples archivos.
 - **Entorno Virtual y Scripts:** Entorno virtual `venv` local y scripts de automatización multiplataforma `start.cmd`/`stop.cmd` y `start.sh`/`stop.sh`.
 
-[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.3.0...HEAD
+[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.1...v1.2.0
 [1.1.1]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.0...v1.1.1

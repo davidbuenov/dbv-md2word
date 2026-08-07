@@ -9,6 +9,8 @@
 
 Esta guía describe detalladamente cómo configurar y utilizar el servidor MCP (`mcp_server.py`) de `dbv-md2word` para integrar la conversión automática de Markdown a Word en entornos de desarrollo asistidos por Inteligencia Artificial (IA).
 
+> 📦 **Nota (Agent Plugins 1.0.0):** Desde la actualización a `dbv-specs-ops` v2.4.0, este servidor MCP y el skill `dbv-md2word` están también empaquetados de forma portable (sin rutas absolutas) en [`.well-known/agent-plugin/`](../../.well-known/agent-plugin/) siguiendo el estándar universal **Agent Plugins 1.0.0**. Los clientes de IA compatibles con ese estándar pueden autodescubrir y ejecutar la herramienta directamente desde ahí; las guías manuales de configuración de esta página siguen siendo válidas para clientes que aún no lo soportan. Ver `dbv-specs-ops/docs/AGENT_PLUGINS.md` para más detalles.
+
 ---
 
 ## 📑 Índice

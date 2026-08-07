@@ -22,10 +22,17 @@
 
 ```text
 dbv-md2word/
+├── .well-known/
+│   └── agent-plugin/            # Agent Plugin 1.0.0 (autodescubrimiento portable para IA)
+│       ├── plugin.json          # Manifiesto del plugin
+│       ├── mcp.json             # Descriptor MCP (rutas vía ${PLUGIN_ROOT})
+│       └── skills/dbv-md2word/  # Agent Skill migrada (SKILL.md, scripts/, resources/)
 ├── docs/                        # Documentación SDD
 │   ├── ARCHITECTURE.md          # Este archivo
 │   ├── SPECIFICATIONS.md        # Especificaciones funcionales
-│   └── DESIGN.md                # Directrices del sistema de diseño visual
+│   ├── DESIGN.md                # Directrices del sistema de diseño visual
+│   ├── MCP_SERVER.md            # Guía de configuración manual del servidor MCP
+│   └── AGENT_PLUGINS.md         # Guía del estándar Agent Plugins 1.0.0
 ├── static/                      # Recursos estáticos de la interfaz web
 │   ├── app.js                   # Lógica frontend (Drag & Drop, API calls)
 │   └── style.css                # Diseño visual (Premium Glassmorphism y Dark/Light)
@@ -35,6 +42,7 @@ dbv-md2word/
 │   └── test_converter.py        # Validación de estilos, campos SEQ y referencias cruzadas
 ├── convert_md_to_docx.py        # Módulo de conversión Markdown a Word (refactorizado)
 ├── server.py                    # Servidor local Flask y punto de entrada de la aplicación
+├── mcp_server.py                # Servidor MCP (herramienta convert_markdown_to_docx para agentes de IA)
 ├── requirements.txt             # Dependencias del proyecto
 ├── start.cmd / start.sh         # Scripts de arranque automatizado (activan venv)
 ├── stop.cmd / stop.sh           # Scripts de parada de la aplicación
@@ -60,6 +68,18 @@ Word procesa campos de instrucción dinámica. Usaremos manipulación XML (`pyth
 - **SEQ (Secuencias):** Para numeración dinámica de figuras y tablas, inyectaremos un campo de instrucción `SEQ Figure \* ARABIC` y `SEQ Table \* ARABIC`.
 - **Bookmarks (Marcadores):** Para que las referencias cruzadas funcionen, añadiremos un nodo `w:bookmarkStart` y `w:bookmarkEnd` alrededor de cada leyenda de figura o tabla con un nombre de marcador único (ej. `_Ref_Fig_1`).
 - **REF (Referencias Cruzadas):** Para referenciar figuras/tablas en el texto (ej. al procesar `[Fig. X]`), buscaremos el patrón y lo reemplazaremos por un run que contenga un campo XML de instrucción `REF _Ref_Fig_X \h`.
+
+---
+
+## 🤖 Agent Harness (Interfaz Externa para Agentes)
+
+- **Servidor MCP (`mcp_server.py`):** Expone una única herramienta, `convert_markdown_to_docx`, que permite a agentes de IA (Claude Desktop, Cursor, Windsurf, etc.) invocar la conversión directamente, con los mismos parámetros de personalización de estilo que la interfaz web (fuentes, color primario, TOC, numeración).
+- **Empaquetado Agent Plugin 1.0.0:** Tanto el servidor MCP como el Agent Skill `dbv-md2word` se exponen de forma portable (sin rutas absolutas) en `.well-known/agent-plugin/`:
+  - `plugin.json` — manifiesto de identidad del plugin.
+  - `mcp.json` — descriptor del servidor MCP, con `command`/`args`/`cwd` resueltos vía los placeholders `${PLUGIN_ROOT}` (relativo a `.well-known/agent-plugin/`) en lugar de rutas absolutas de máquina, garantizando portabilidad entre clientes e IDEs.
+  - `skills/dbv-md2word/` — Agent Skill con `SKILL.md`, `scripts/convert_md_to_docx.py` y `resources/config.json`.
+- **Configuración manual (clientes sin autodescubrimiento):** `docs/MCP_SERVER.md` documenta cómo registrar `mcp_server.py` manualmente en Claude Desktop, Cursor y Windsurf para clientes que todavía no soportan el estándar Agent Plugins.
+- **Sandboxing:** El servidor MCP corre en el mismo `venv` local que la aplicación web; no ejecuta código arbitrario del usuario, solo transforma el Markdown recibido a `.docx` mediante `python-docx`.
 
 ---
 

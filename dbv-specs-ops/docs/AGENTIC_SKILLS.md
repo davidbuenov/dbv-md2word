@@ -27,14 +27,16 @@ Una **Habilidad (Skill)** es una directiva autónoma y empaquetada que describe 
 
 A diferencia del Servidor MCP (que funciona por comunicación de red/stdio en tiempo real), el **Skill** es un manual de operaciones de código que la IA puede leer, interpretar y ejecutar localmente en su terminal sandbox como parte de su checklist de tareas.
 
+> 📦 **Nota (Agent Plugins 1.0.0):** Desde la v1.4.0, el Skill vive empaquetado de forma portable en [`.well-known/agent-plugin/skills/dbv-md2word/`](../../.well-known/agent-plugin/skills/dbv-md2word/) junto al descriptor MCP (`mcp.json`) y el manifiesto (`plugin.json`), siguiendo el estándar universal **Agent Plugins 1.0.0**. Ver `dbv-specs-ops/docs/AGENT_PLUGINS.md`.
+
 ---
 
 ## 🪐 Uso en Antigravity (Google DeepMind)
 
 En el entorno **Antigravity**, las habilidades están integradas de forma nativa. 
 
-1. Cuando abres el workspace `dbv-md2word` en Antigravity, el motor del IDE escanea automáticamente la carpeta `skills/` en la raíz del proyecto.
-2. Al leer el manifiesto [SKILL.md](./../skills/dbv-md2word/SKILL.md), el agente asistente sabrá que tiene disponible la habilidad `dbv-md2word`.
+1. Cuando abres el workspace `dbv-md2word` en Antigravity, el motor del IDE escanea automáticamente la carpeta `.well-known/agent-plugin/skills/` en la raíz del proyecto.
+2. Al leer el manifiesto [SKILL.md](../../.well-known/agent-plugin/skills/dbv-md2word/SKILL.md), el agente asistente sabrá que tiene disponible la habilidad `dbv-md2word`.
 3. Si le pides: *"Genera un informe en Word a partir del diseño técnico"*, el agente buscará la herramienta en su catálogo local, leerá el manifiesto, sabrá qué parámetros pasarle al script de Python y ejecutará el comando en segundo plano sin cometer fallos de sintaxis.
 
 ---
@@ -43,9 +45,9 @@ En el entorno **Antigravity**, las habilidades están integradas de forma nativa
 
 Para utilizar este conversor de Markdown a Word de forma nativa en cualquier otro proyecto que tengas abierto en tu IDE local:
 
-1. **Copia la carpeta** `skills/dbv-md2word/` del directorio de este proyecto.
-2. **Pégala en la raíz** del nuevo proyecto (de modo que quede la carpeta `skills/` en la base de tu nuevo espacio de trabajo).
-3. **¡Y listo!** Al abrir ese nuevo proyecto en Antigravity o en un entorno compatible con Skills, el agente local escaneará la carpeta y sabrá realizar conversiones utilizando la misma especificación del Skill de forma inmediata.
+1. **Copia la carpeta** `.well-known/agent-plugin/` del directorio de este proyecto (incluye `plugin.json`, `mcp.json` y `skills/dbv-md2word/`).
+2. **Pégala en la raíz** del nuevo proyecto (de modo que quede la carpeta `.well-known/agent-plugin/` en la base de tu nuevo espacio de trabajo).
+3. **¡Y listo!** Al abrir ese nuevo proyecto en Antigravity o en un entorno compatible con Skills/Agent Plugins, el agente local escaneará la carpeta y sabrá realizar conversiones utilizando la misma especificación del Skill de forma inmediata.
 
 ---
 
@@ -96,15 +98,19 @@ Esto permite que ChatGPT compile documentos de Word hermosos y profesionales con
 
 ## 📂 Estructura interna del Skill
 
-La habilidad está completamente empaquetada en la raíz del proyecto para facilitar su transporte a otros workspaces:
+La habilidad está empaquetada dentro del Agent Plugin del proyecto para facilitar su transporte a otros workspaces:
 
 ```text
 dbv-md2word/
- └── skills/
-      └── dbv-md2word/
-           ├── SKILL.md                  # Manifiesto de la Habilidad y reglas para la IA
-           ├── scripts/
-           │    └── convert_md_to_docx.py # Motor de conversión independiente
-           └── resources/
-                └── config.json          # Valores por defecto de estilos
+ └── .well-known/
+      └── agent-plugin/
+           ├── plugin.json               # Manifiesto del Agent Plugin 1.0.0
+           ├── mcp.json                  # Descriptor del servidor MCP
+           └── skills/
+                └── dbv-md2word/
+                     ├── SKILL.md                   # Manifiesto de la Habilidad y reglas para la IA
+                     ├── scripts/
+                     │    └── convert_md_to_docx.py # Motor de conversión independiente
+                     └── resources/
+                          └── config.json           # Valores por defecto de estilos
 ```

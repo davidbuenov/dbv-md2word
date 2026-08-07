@@ -1,4 +1,4 @@
-# dbv-md2word
+# dbv-md2word (v1.4.0)
 
 > Conversor personalizable de Markdown a Word (.docx) con interfaz visual local
 
@@ -163,8 +163,11 @@ jobs:
 ```
 
 <a name="usage-skills"></a>
-### 🧠 Habilidades de Agente (Agentic Skills)
+### 🧠 Habilidades de Agente (Agentic Skills) y Agent Plugin
+
 El convertidor está empaquetado como un **Agentic Skill** bajo el estándar de herramientas locales de IA. Esto permite que asistentes autónomos (como **Antigravity**) o agentes web (como **Claude Projects** y **Custom GPTs**) reconozcan y ejecuten la conversión de archivos de forma directa en su terminal.
+
+Desde la v1.4.0, tanto el servidor MCP como el Skill se distribuyen además de forma portable (sin rutas absolutas) bajo el estándar universal **[Agent Plugins 1.0.0](./dbv-specs-ops/docs/AGENT_PLUGINS.md)**, en [`.well-known/agent-plugin/`](./.well-known/agent-plugin/) (`plugin.json`, `mcp.json` y `skills/dbv-md2word/`).
 
 Para ver las guías de integración de la habilidad y cómo usarla en tus propios proyectos de Claude y ChatGPT, consulta la **[Guía de Habilidades de Agente](./dbv-specs-ops/docs/AGENTIC_SKILLS.md)**.
 
@@ -197,11 +200,19 @@ chmod +x stop.sh
 
 ```text
 dbv-md2word/
+├── .well-known/
+│   └── agent-plugin/            # Agent Plugin 1.0.0 (MCP + Skill portables)
+│       ├── plugin.json          # Manifiesto del plugin
+│       ├── mcp.json             # Descriptor MCP (rutas vía ${PLUGIN_ROOT})
+│       └── skills/dbv-md2word/  # Agent Skill empaquetada
 ├── dbv-specs-ops/               # Carpeta del framework de desarrollo SDD
 │   ├── docs/                    # Documentación de diseño y especificaciones
 │   │   ├── ARCHITECTURE.md      # Arquitectura técnica y stack de la app
 │   │   ├── DESIGN.md            # Sistema de diseño y estilos visuales
-│   │   └── SPECIFICATIONS.md    # Especificaciones funcionales de la app
+│   │   ├── SPECIFICATIONS.md    # Especificaciones funcionales de la app
+│   │   ├── MCP_SERVER.md        # Guía de configuración manual del servidor MCP
+│   │   ├── AGENTIC_SKILLS.md    # Guía de uso del Skill en distintos agentes
+│   │   └── AGENT_PLUGINS.md     # Guía del estándar Agent Plugins 1.0.0
 │   ├── project.config.md        # Identidad del proyecto y metadatos del framework
 │   ├── memory.md                # Registro de decisiones y lecciones aprendidas
 │   └── task.md                  # Registro y checklist de tareas actuales
