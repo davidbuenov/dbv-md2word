@@ -46,15 +46,22 @@
     - [x] Descargar y actualizar `docs/MASTER_PROMPT.md` y `docs/UPGRADE_PROMPT.md` a v2.4.0.
     - [x] Crear `docs/AGENT_PLUGINS.md` (nuevo) con la guía del estándar.
     - [x] Actualizar `project.config.md` (`Framework Version: 2.4.0`).
-    - [x] Migrar `skills/dbv-md2word/` a `.well-known/agent-plugin/skills/dbv-md2word/` (`git mv`) y crear `plugin.json` + `mcp.json` portables (`${PLUGIN_ROOT}`).
+    - [x] Migrar `skills/dbv-md2word/` a `agent-plugin/skills/dbv-md2word/` (`git mv`) y crear `plugin.json` + `mcp.json` portables (`${PLUGIN_ROOT}`).
     - [x] Actualizar `docs/SPECIFICATIONS.md` y `docs/ARCHITECTURE.md` con la interfaz de agentes (Agent Harness).
     - [x] Corregir rutas obsoletas en `docs/AGENTIC_SKILLS.md` y `docs/MCP_SERVER.md`.
     - [x] Bump de versión de la app a `v1.4.0` (`pyproject.toml`, `__version__`, `SKILL.md`, README).
     - [x] Actualizar `CHANGELOG.md` con la entrada `[1.4.0]`.
     - [x] Generar el `walkthrough.md` de cierre.
 
+- [x] **Task 13: Corrección del Agent Plugin (fix v1.4.1)**
+    - [x] Mover `agent-plugin/` fuera de `.well-known/` (el spec de agent-plugins.org no define autodescubrimiento vía `.well-known/`; esa ruta solo aplica a plugins servidos desde una web pública, no a instalación local).
+    - [x] Copiar `mcp_server.py` dentro de `agent-plugin/skills/dbv-md2word/scripts/` para que el plugin sea 100% autocontenido.
+    - [x] Corregir `mcp.json`: `command` pasa a ser el token simple `python` (los placeholders `${PLUGIN_ROOT}`/`${PLUGIN_DATA}` no se expanden en `command` según el spec, solo en `args`/`env`/`cwd`).
+    - [x] Actualizar todas las referencias a `.well-known/agent-plugin/` en `README.md`, `docs/SPECIFICATIONS.md`, `docs/ARCHITECTURE.md`, `docs/MCP_SERVER.md`, `docs/AGENTIC_SKILLS.md`, `memory.md`.
+    - [x] Registrar la corrección en `CHANGELOG.md` como `v1.4.1`.
+
 ---
 
 ## 📸 Snapshot de Contexto (Próximo Paso)
-- **Versión Liberada:** `v1.4.0`
-- **Siguiente Objetivo:** Ninguno pendiente de esta entrega. Próximos pasos opcionales sugeridos: (1) revisar si procede implementar la infraestructura completa de Agent Readiness Web (robots.txt, llms.txt, cabeceras `Link`) ya que `project.config.md` tiene `Agent Readiness (Web): Yes` pero la app es 100% local/offline; (2) regenerar `.well-known/agent-plugin/skills/dbv-md2word/dbv-md2word.zip` si se distribuye como artefacto descargable.
+- **Versión Liberada:** `v1.4.1`
+- **Siguiente Objetivo:** Ninguno pendiente de esta entrega. Próximos pasos opcionales sugeridos: (1) revisar si procede implementar la infraestructura completa de Agent Readiness Web (robots.txt, llms.txt, cabeceras `Link`) ya que `project.config.md` tiene `Agent Readiness (Web): Yes` pero la app es 100% local/offline; (2) regenerar `agent-plugin/skills/dbv-md2word/dbv-md2word.zip` si se distribuye como artefacto descargable.

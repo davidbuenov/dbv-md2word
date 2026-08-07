@@ -24,7 +24,7 @@ from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import nsdecls, qn
 from docx.opc.constants import RELATIONSHIP_TYPE
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 class ConversionState:
     """Clase para mantener el estado de la conversión, como los contadores de marcadores."""

@@ -1,4 +1,4 @@
-# dbv-md2word (v1.4.0)
+# dbv-md2word (v1.4.1)
 
 > Conversor personalizable de Markdown a Word (.docx) con interfaz visual local
 
@@ -167,7 +167,7 @@ jobs:
 
 El convertidor está empaquetado como un **Agentic Skill** bajo el estándar de herramientas locales de IA. Esto permite que asistentes autónomos (como **Antigravity**) o agentes web (como **Claude Projects** y **Custom GPTs**) reconozcan y ejecuten la conversión de archivos de forma directa en su terminal.
 
-Desde la v1.4.0, tanto el servidor MCP como el Skill se distribuyen además de forma portable (sin rutas absolutas) bajo el estándar universal **[Agent Plugins 1.0.0](./dbv-specs-ops/docs/AGENT_PLUGINS.md)**, en [`.well-known/agent-plugin/`](./.well-known/agent-plugin/) (`plugin.json`, `mcp.json` y `skills/dbv-md2word/`).
+Desde la v1.4.0, tanto el servidor MCP como el Skill se distribuyen además de forma portable (sin rutas absolutas) bajo el estándar universal **[Agent Plugins 1.0.0](./dbv-specs-ops/docs/AGENT_PLUGINS.md)**, en [`agent-plugin/`](./agent-plugin/) (`plugin.json`, `mcp.json` y `skills/dbv-md2word/`). Se usa la ruta `agent-plugin/` en la raíz — no `.well-known/agent-plugin/` — porque el plugin está pensado para instalarse localmente (clonando o copiando la carpeta), no para servirse desde un sitio web público.
 
 Para ver las guías de integración de la habilidad y cómo usarla en tus propios proyectos de Claude y ChatGPT, consulta la **[Guía de Habilidades de Agente](./dbv-specs-ops/docs/AGENTIC_SKILLS.md)**.
 
@@ -200,11 +200,10 @@ chmod +x stop.sh
 
 ```text
 dbv-md2word/
-├── .well-known/
-│   └── agent-plugin/            # Agent Plugin 1.0.0 (MCP + Skill portables)
-│       ├── plugin.json          # Manifiesto del plugin
-│       ├── mcp.json             # Descriptor MCP (rutas vía ${PLUGIN_ROOT})
-│       └── skills/dbv-md2word/  # Agent Skill empaquetada
+├── agent-plugin/                # Agent Plugin 1.0.0 (MCP + Skill portables, instalación local)
+│   ├── plugin.json              # Manifiesto del plugin
+│   ├── mcp.json                 # Descriptor MCP (rutas vía ${PLUGIN_ROOT})
+│   └── skills/dbv-md2word/      # Agent Skill empaquetada (incluye su propio mcp_server.py)
 ├── dbv-specs-ops/               # Carpeta del framework de desarrollo SDD
 │   ├── docs/                    # Documentación de diseño y especificaciones
 │   │   ├── ARCHITECTURE.md      # Arquitectura técnica y stack de la app

@@ -22,11 +22,11 @@
 
 ```text
 dbv-md2word/
-├── .well-known/
-│   └── agent-plugin/            # Agent Plugin 1.0.0 (autodescubrimiento portable para IA)
-│       ├── plugin.json          # Manifiesto del plugin
-│       ├── mcp.json             # Descriptor MCP (rutas vía ${PLUGIN_ROOT})
-│       └── skills/dbv-md2word/  # Agent Skill migrada (SKILL.md, scripts/, resources/)
+├── agent-plugin/                # Agent Plugin 1.0.0 (instalación local portable, no servido por web)
+│   ├── plugin.json              # Manifiesto del plugin
+│   ├── mcp.json                 # Descriptor MCP (rutas vía ${PLUGIN_ROOT})
+│   └── skills/dbv-md2word/      # Agent Skill migrada (SKILL.md, scripts/ con su propia copia de
+│                                 #   convert_md_to_docx.py y mcp_server.py, resources/)
 ├── docs/                        # Documentación SDD
 │   ├── ARCHITECTURE.md          # Este archivo
 │   ├── SPECIFICATIONS.md        # Especificaciones funcionales
@@ -74,10 +74,10 @@ Word procesa campos de instrucción dinámica. Usaremos manipulación XML (`pyth
 ## 🤖 Agent Harness (Interfaz Externa para Agentes)
 
 - **Servidor MCP (`mcp_server.py`):** Expone una única herramienta, `convert_markdown_to_docx`, que permite a agentes de IA (Claude Desktop, Cursor, Windsurf, etc.) invocar la conversión directamente, con los mismos parámetros de personalización de estilo que la interfaz web (fuentes, color primario, TOC, numeración).
-- **Empaquetado Agent Plugin 1.0.0:** Tanto el servidor MCP como el Agent Skill `dbv-md2word` se exponen de forma portable (sin rutas absolutas) en `.well-known/agent-plugin/`:
+- **Empaquetado Agent Plugin 1.0.0:** Tanto el servidor MCP como el Agent Skill `dbv-md2word` se exponen de forma portable (sin rutas absolutas) en `agent-plugin/` en la raíz del proyecto — no en `.well-known/agent-plugin/`, ya que esa ruta solo tiene sentido cuando el plugin se sirve desde un sitio web público para autodescubrimiento HTTP; aquí el plugin se distribuye para instalación local (clonar/copiar la carpeta):
   - `plugin.json` — manifiesto de identidad del plugin.
-  - `mcp.json` — descriptor del servidor MCP, con `command`/`args`/`cwd` resueltos vía los placeholders `${PLUGIN_ROOT}` (relativo a `.well-known/agent-plugin/`) en lugar de rutas absolutas de máquina, garantizando portabilidad entre clientes e IDEs.
-  - `skills/dbv-md2word/` — Agent Skill con `SKILL.md`, `scripts/convert_md_to_docx.py` y `resources/config.json`.
+  - `mcp.json` — descriptor del servidor MCP: `command` es el token ejecutable simple `python` (el spec no expande `${PLUGIN_ROOT}`/`${PLUGIN_DATA}` dentro de `command`, solo en `args`, `env` y `cwd`), y `args` apunta a `${PLUGIN_ROOT}/skills/dbv-md2word/scripts/mcp_server.py`, una copia autocontenida del servidor dentro del propio plugin (junto a su propia copia de `convert_md_to_docx.py`), de forma que la carpeta `agent-plugin/` es 100% autónoma y portable sin depender de ficheros fuera de sí misma.
+  - `skills/dbv-md2word/` — Agent Skill con `SKILL.md`, `scripts/convert_md_to_docx.py`, `scripts/mcp_server.py` y `resources/config.json`.
 - **Configuración manual (clientes sin autodescubrimiento):** `docs/MCP_SERVER.md` documenta cómo registrar `mcp_server.py` manualmente en Claude Desktop, Cursor y Windsurf para clientes que todavía no soportan el estándar Agent Plugins.
 - **Sandboxing:** El servidor MCP corre en el mismo `venv` local que la aplicación web; no ejecuta código arbitrario del usuario, solo transforma el Markdown recibido a `.docx` mediante `python-docx`.
 

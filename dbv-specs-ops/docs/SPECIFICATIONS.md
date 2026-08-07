@@ -43,7 +43,7 @@
 - **Dependencias Críticas:** `python-docx` para manipulación de archivos Word XML, `fastapi` y `uvicorn` para el servidor web local.
 - **Sistema de Diseño:** Ver `docs/DESIGN.md` para el estilo visual premium (oscuro/claro, transiciones fluidas, tipografía Outfit/Inter).
 - **Auditoría Visual y Enriquecimiento:** Ver `docs/DESIGN_ENRICHMENT.md` para guías de enriquecimiento visual y herramientas de auditoría aplicables.
-- **Interfaz para Agentes de IA (Agent Readiness):** El proyecto expone la conversión como herramienta MCP (`mcp_server.py`, tool `convert_markdown_to_docx`) y como Agent Skill (`dbv-md2word`), empaquetadas de forma portable bajo el estándar **Agent Plugins 1.0.0** en `.well-known/agent-plugin/` (`plugin.json` + `mcp.json` + `skills/dbv-md2word/`). Ver `docs/AGENT_PLUGINS.md` para el estándar y `docs/MCP_SERVER.md` para las guías de configuración manual en clientes que no autodescubren el plugin.
+- **Interfaz para Agentes de IA (Agent Readiness):** El proyecto expone la conversión como herramienta MCP (`mcp_server.py`, tool `convert_markdown_to_docx`) y como Agent Skill (`dbv-md2word`), empaquetadas de forma portable bajo el estándar **Agent Plugins 1.0.0** en `agent-plugin/` (`plugin.json` + `mcp.json` + `skills/dbv-md2word/`, con su propia copia autocontenida de `mcp_server.py`). Se usa `agent-plugin/` en la raíz (no `.well-known/agent-plugin/`) porque el plugin se distribuye para instalación local/copia directa, no para servirse desde una web pública. Ver `docs/AGENT_PLUGINS.md` para el estándar y `docs/MCP_SERVER.md` para las guías de configuración manual en clientes que no autodescubren el plugin.
 
 ## 🚫 5. Fuera de Alcance (Out of Scope)
 

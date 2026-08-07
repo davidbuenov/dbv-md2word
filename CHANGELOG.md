@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [1.4.1] — 2026-08-07
+
+### Fixed
+- **Agent Plugin no autocontenido y no conformante con el spec real:** El empaquetado introducido en la v1.4.0 tenía dos problemas frente a la especificación oficial de [agent-plugins.org](https://agent-plugins.org/specification):
+  1. Se ubicaba en `.well-known/agent-plugin/`, una ruta que el spec no define en absoluto — solo tiene sentido para plugins servidos desde una web pública (autodescubrimiento HTTP), no para herramientas de instalación local como esta. Se mueve a `agent-plugin/` en la raíz del proyecto.
+  2. `mcp.json` usaba `${PLUGIN_ROOT}` dentro del campo `command`, pero el spec solo expande los placeholders `${PLUGIN_ROOT}`/`${PLUGIN_DATA}` en `args`, `env` y `cwd` — nunca en `command`, que debe ser un token ejecutable simple. Se corrige a `command: "python"` y se copia `mcp_server.py` dentro de `agent-plugin/skills/dbv-md2word/scripts/` para que el plugin sea completamente autocontenido y portable.
+
+---
+
 ## [1.4.0] — 2026-08-07
 
 ### Added
@@ -110,7 +119,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - **Interfaz Gráfica Web Local (GUI):** Servidor Flask local con un panel web interactivo en HTML5/CSS/JS con Drag & Drop para convertir múltiples archivos.
 - **Entorno Virtual y Scripts:** Entorno virtual `venv` local y scripts de automatización multiplataforma `start.cmd`/`stop.cmd` y `start.sh`/`stop.sh`.
 
-[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.4.0...HEAD
+[Sin publicar]: https://github.com/davidbuenov/dbv-md2word/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/davidbuenov/dbv-md2word/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/davidbuenov/dbv-md2word/compare/v1.1.1...v1.2.0
